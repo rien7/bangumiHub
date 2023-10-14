@@ -26,9 +26,9 @@ watch([expand, hover, groupHover], () => {
     :w="expand || hover ? '250px' : groupHover ? '200px' : '50px'" h-50px
     transition-all
     :overflow="popup ? 'visible' : 'hidden'"
-    :bg="popup ? 'gray-100' : 'none'"
+    :bg="popup ? 'gray-100 dark:gray-800' : 'none'"
     rounded-e-full
-    :outline="popup ? '1px solid gray-200' : 'none'"
+    :outline="popup ? '1px solid gray-200 dark:gray-700' : 'none'"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
   >
@@ -49,8 +49,8 @@ watch([expand, hover, groupHover], () => {
           transition
           :cursor="clickable && 'pointer'"
           flex items-center justify-center
-          :bg="clickable && 'hover:gray-200'"
-          :ring="clickable && 'hover:1 hover:gray-300'"
+          :bg="clickable && 'hover:gray-200 dark:hover:gray-700'"
+          :ring="clickable && 'hover:2 hover:gray-300 dark:hover:gray-600'"
         >
           <slot />
         </div>

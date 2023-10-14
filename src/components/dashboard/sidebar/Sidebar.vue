@@ -12,7 +12,8 @@ provide('expand', expand)
 <template>
   <div
     :w="expand ? '250px' : '50px'" h-100vh
-    border-r="1px solid gray-200"
+    border-r="1px solid gray-200 dark:gray-700"
+    shadow="lg gray-200 dark:gray-700"
     transition-all
   >
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
