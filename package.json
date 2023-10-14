@@ -1,0 +1,30 @@
+{
+  "name": "index",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "idb": "^7.1.1",
+    "node-stdlib-browser": "^1.2.0",
+    "qr-code-styling": "1.6.0-rc.1",
+    "telegram": "^2.19.8",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "1.0.0-beta.26",
+    "@iconify/vue": "^4.1.1",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "eslint": "^8.51.0",
+    "typescript": "^5.0.2",
+    "unocss": "^0.56.5",
+    "vite": "^4.4.5",
+    "vite-plugin-node-stdlib-browser": "^0.2.1",
+    "vue-tsc": "^1.8.5"
+  }
+}
