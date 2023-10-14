@@ -25,8 +25,10 @@ class LoginUtil {
   }
 
   async loginWithQRCode() {
-    if (this.status === LoginStatus.FINISHED)
+    if (this.status === LoginStatus.FINISHED) {
+      this.onStatusChange(this.status)
       return
+    }
     this.status = LoginStatus.QR_CODE_WAITING
     this.onStatusChange(this.status)
     const qrCodeScanned = new Promise((resolve) => {
@@ -145,6 +147,7 @@ function generateQRCode(data: string, dom: HTMLElement) {
     qrOptions: { errorCorrectionLevel: 'M' },
     dotsOptions: { type: 'rounded' },
     cornersSquareOptions: { type: 'extra-rounded' },
+    cornersDotOptions: { type: 'dot' },
   })
 
   while (dom.firstChild)

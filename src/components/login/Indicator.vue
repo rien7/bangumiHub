@@ -43,7 +43,7 @@ const props = defineProps<{
       {{ props.text }}
     </p>
   </div>
-  <Transition name="to-top">
+  <Transition name="to-left">
     <p
       v-if="!props.done"
       mx-auto
@@ -53,21 +53,21 @@ const props = defineProps<{
       {{ props.note }}
     </p>
   </Transition>
-  <Transition name="to-top">
+  <Transition name="to-left">
     <slot v-if="!props.done" />
   </Transition>
 </template>
 
 <style scoped>
-.to-top-leave-from {
+.to-left-leave-from {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
 }
-.to-top-leave-to {
+.to-left-leave-to {
   opacity: 0;
-  transform: translateY(-300%);
+  transform: translateX(-300%);
 }
-.to-top-leave-active {
+.to-left-leave-active {
   transition: opacity 300ms, transform 300ms;
 }
 </style>

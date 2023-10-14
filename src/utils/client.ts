@@ -9,6 +9,6 @@ const CLIENT = new TelegramClient(SESSION, apiCredentals.apiId, apiCredentals.ap
   connectionRetries: 5,
 })
 
-await CLIENT.connect()
+CLIENT.connect()
 
 export { CLIENT, SESSION_STRING }
