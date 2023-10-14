@@ -12,6 +12,7 @@ provide('expand', expand)
 <template>
   <div
     :w="expand ? '250px' : '50px'" h-100vh
+    z-10 relative
     border-r="1px solid gray-200 dark:gray-700"
     shadow="lg gray-200 dark:gray-700"
     transition-all
