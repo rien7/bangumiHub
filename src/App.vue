@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import Login from './components/login/Login.vue'
+import { useRouter } from 'vue-router'
+import { SESSION_STRING } from './utils/client'
+
+const router = useRouter()
+if (!SESSION_STRING)
+  router.push('/login')
 </script>
 
 <template>
-  <div
-    text-center
-  >
-    <Login />
-  </div>
+  <router-view />
 </template>
