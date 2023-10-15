@@ -29,19 +29,18 @@ function handleEnter(e: KeyboardEvent) {
       :type="props.type"
       border="none hover:none focus:none"
       outline="none hover:none focus:none"
-      h-full w-full text-lg
+      h-full w-full bg-transparent text-lg
       @focusin="focused = true"
       @focusout="focused = false"
       @keyup="handleEnter"
     >
 
     <span
-
-      pointer-events-none absolute font-sans
-      :text="focused ? 'xs' : 'sm'"
+      :text="focused ? 'xs' : 'sm' + 'gray-700 dark:gray-200'"
       :top="focused ? '0' : '1/2'"
       translate-y="-1/2"
-      class="pointer-events-none start-2.5 bg-white p-0.5 text-gray-700 transition-all"
+      bg="white dark:black"
+      pointer-events-none absolute start-2.5 p-0.5 font-sans transition-all
     >
       {{ props.label }}
     </span>

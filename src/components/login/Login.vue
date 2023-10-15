@@ -42,7 +42,8 @@ onMounted(() => {
   <div
     top="50%" left="50%"
     translate-x="-50%" translate-y="-50%"
-    absolute w-100 overflow-hidden rounded-md p-4 text-center
+    absolute w-100 flex flex-col items-center
+    overflow-hidden rounded-md p-4 text-center
   >
     <Indicator
       :done="loginStatus !== LoginStatus.QR_CODE_WAITING"

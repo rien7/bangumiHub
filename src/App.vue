@@ -11,7 +11,7 @@ const datkMode = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
 </script>
 
 <template>
-  <div :class="datkMode && 'dark'">
+  <div :class="datkMode && 'dark'" h-100vh>
     <router-view />
   </div>
 </template>

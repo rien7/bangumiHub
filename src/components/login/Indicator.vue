@@ -10,7 +10,7 @@ const props = defineProps<{
 
 <template>
   <div
-    relative mx-auto my-2 w-300px
+    relative my-2 w-300px
   >
     <Icon
       v-if="!props.done"
@@ -37,7 +37,7 @@ const props = defineProps<{
   <Transition name="to-left">
     <p
       v-if="!props.done"
-      mx-auto max-w-300px
+      mx-auto mb-4 max-w-300px
       font-sans text="xs gray-500"
     >
       {{ props.note }}
