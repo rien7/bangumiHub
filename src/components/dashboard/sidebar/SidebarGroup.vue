@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, provide, ref } from 'vue'
+import { provide, ref } from 'vue'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 

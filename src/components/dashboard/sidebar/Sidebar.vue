@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { provide, ref } from 'vue'
+import { onMounted, provide, ref } from 'vue'
+import db from '../../../utils/db'
+import type { Channel } from '../../../models/Channel'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 import ImageIcon from './ImageIcon.vue'
@@ -7,6 +9,29 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const expand = ref(false)
 provide('expand', expand)
+
+const favouriteChannels = ref<{ id: bigInt.BigInteger; name: string; image: string }[]>([])
+
+onMounted(async () => {
+  await updateChannels()
+})
+
+window.addEventListener('message', async (event) => {
+  if (event.data.type === 'favourite-channels')
+    await updateChannels()
+})
+
+async function updateChannels() {
+  const favouriteChannelStrings = await db.getAll('favourite-channels')
+  favouriteChannels.value = favouriteChannelStrings.map((_channel) => {
+    const channel = JSON.parse(_channel) as Channel
+    return {
+      id: channel.id,
+      name: channel.title,
+      image: `data:image/png;base64,${channel.chatPhoto?.sizes[0].data}`,
+    }
+  })
+}
 </script>
 
 <template>
@@ -18,15 +43,11 @@ provide('expand', expand)
     transition-all
   >
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
-      <SidebarBtn text="Boqi" :clickable="true">
-        <ImageIcon
-          src="https://misskey.gothloli.club/files/thumbnail-b33eb87d-3911-4987-9304-d934b6d79f97/thumbnail-b33eb87d-3911-4987-9304-d934b6d79f97.jpg"
-        />
-      </SidebarBtn>
-      <SidebarBtn text="Boqi" :clickable="true">
-        <ImageIcon
-          src="https://misskey.gothloli.club/files/thumbnail-b33eb87d-3911-4987-9304-d934b6d79f97/thumbnail-b33eb87d-3911-4987-9304-d934b6d79f97.jpg"
-        />
+      <SidebarBtn
+        v-for="channel in favouriteChannels"
+        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true"
+      >
+        <ImageIcon :src="channel.image" />
       </SidebarBtn>
     </SidebarGroup>
 

@@ -1,11 +1,31 @@
 <script setup lang='ts'>
+import { onMounted, ref } from 'vue'
+import { Icon } from '@iconify/vue/dist/iconify.js'
 import type { Channel } from '../../../models/Channel'
+import db from '../../../utils/db'
 
 const props = defineProps<{
   channel: Channel
 }>()
 
 const searchResult = props.channel
+const favourite = ref(false)
+
+onMounted(() => {
+  db.get('favourite-channels', searchResult.id.toString()).then((res) => {
+    if (res)
+      favourite.value = true
+  })
+})
+
+function handleBtnClick() {
+  if (!favourite.value)
+    db.put('favourite-channels', JSON.stringify(searchResult), searchResult.id.toString())
+  else
+    db.delete('favourite-channels', searchResult.id.toString())
+  window.postMessage({ type: 'favourite-channels' }, location.href)
+  favourite.value = !favourite.value
+}
 </script>
 
 <template>
@@ -23,7 +43,12 @@ const searchResult = props.channel
           @{{ searchResult?.username }}
         </div>
       </div>
-      <div w-8 h-8 rounded-full bg-gray-400 ml-auto />
+      <div
+        w-8 h-8 rounded-full ml-auto transition-all cursor-pointer p-1
+        @click="handleBtnClick"
+      >
+        <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="w-full h-full rounded-full" />
+      </div>
     </div>
     <div flex flex-col mt-4>
       <div w-full text-sm whitespace-pre-wrap>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { inject, ref, watch } from 'vue'
+import db from '../../../utils/db';
 
 const props = defineProps<{
+  id?: string
   text: string
   clickable: boolean
 }>()
@@ -19,6 +21,13 @@ watch([expand, hover, groupHover], () => {
   else
     popup.value = false
 })
+
+async function handleBtnClick() {
+  if (props.clickable && props.id) {
+    await db.put('general-settings', props.id, 'selecting-channel')
+    window.postMessage({ type: 'selecting-channel' }, location.href)
+  }
+}
 </script>
 
 <template>
@@ -51,6 +60,7 @@ watch([expand, hover, groupHover], () => {
           flex items-center justify-center
           :bg="clickable && 'hover:gray-200 dark:hover:gray-700'"
           :ring="clickable && 'hover:2 hover:gray-300 dark:hover:gray-600'"
+          @click="handleBtnClick"
         >
           <slot />
         </div>
