@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import ImageIcon from '../sidebar/ImageIcon.vue'
 import db, { StoreNames } from '../../../utils/db'
-import type { Channel } from '../../../models/Channel'
+import type Channel from '../../../models/Channel'
 
 const expand = ref(false)
 const defaultImage = 'https://avatars.githubusercontent.com/u/68459896?v=4'
@@ -30,7 +30,7 @@ async function getSelectedChannel() {
   const channel = JSON.parse(_channel) as Channel
   selectingChannel.value = {
     name: channel.title,
-    image: `data:image/png;base64,${channel.chatPhoto?.sizes[0].data}`,
+    image: `/img/c${channel.chatPhotoId}`,
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
-import type { Channel } from '../../../models/Channel'
+import type Channel from '../../../models/Channel'
 import db, { StoreNames } from '../../../utils/db'
 
 const props = defineProps<{
@@ -20,9 +20,8 @@ onMounted(() => {
 
 function handleBtnClick() {
   if (!favourite.value)
-    db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify(searchResult), searchResult.id.toString())
-  else
-    db.delete(StoreNames.FAVOURITE_CHANNELS, searchResult.id.toString())
+    db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify({ ...searchResult, about: undefined }), searchResult.id.toString())
+  else db.delete(StoreNames.FAVOURITE_CHANNELS, searchResult.id.toString())
   window.postMessage({ type: 'favourite-channels' }, location.href)
   favourite.value = !favourite.value
 }
@@ -32,8 +31,7 @@ function handleBtnClick() {
   <div w-full flex flex-col px-8 py-2>
     <div flex>
       <div h-16 w-16 rounded-full>
-        <!-- TODO: don't use base64 -->
-        <img :src="`data:image/png;base64,${searchResult?.chatPhoto?.getPhoto()}`" class="h-full w-full rounded-full">
+        <img :src="`/img/c${channel.chatPhotoId}`" class="h-full w-full rounded-full">
       </div>
       <div ml-4 h-16 flex flex-col justify-center>
         <div text-lg font-600>

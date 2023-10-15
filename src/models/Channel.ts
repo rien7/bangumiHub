@@ -1,22 +1,32 @@
 import type { Api } from 'telegram'
-import { Photo } from './Photo'
+import db, { StoreNames } from '../utils/db'
+import Photo from './Photo'
 
 class Channel {
   id: bigInt.BigInteger
   title: string
+  accessHash?: bigInt.BigInteger
   username?: string
   about?: string
-  chatPhoto?: Photo
+  chatPhotoId?: bigInt.BigInteger
 
   constructor(data: Api.messages.ChatFull) {
     const channel = data.chats[0] as Api.Channel
     this.id = channel.id
     this.title = channel.title
+    this.accessHash = channel.accessHash
     this.username = channel.username
     this.about = data.fullChat.about
-    if (data.fullChat.chatPhoto)
-      this.chatPhoto = new Photo(data.fullChat.chatPhoto)
+    if (data.fullChat.chatPhoto) {
+      const photo = new Photo(data.fullChat.chatPhoto)
+      this.chatPhotoId = photo.id
+      db.put(StoreNames.MEDIA, {
+        ...photo,
+        id: photo.id.toString(),
+        accessHash: photo.accessHash.toString(),
+      }, photo.id.toString())
+    }
   }
 }
 
-export { Channel }
+export default Channel

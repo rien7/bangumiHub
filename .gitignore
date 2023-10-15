@@ -25,3 +25,4 @@ dist-ssr
 *.env
 credentials.json
 golang/fly.toml
+dev-dist/registerSW.js

@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import { SESSION_STRING } from './utils/client'
+import './utils/worker'
 
 const router = useRouter()
 if (!SESSION_STRING)

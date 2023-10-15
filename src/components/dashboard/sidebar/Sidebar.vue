@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, provide, ref } from 'vue'
 import db, { StoreNames } from '../../../utils/db'
-import type { Channel } from '../../../models/Channel'
+import type Channel from '../../../models/Channel'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 import ImageIcon from './ImageIcon.vue'
@@ -28,7 +28,7 @@ async function updateChannels() {
     return {
       id: channel.id,
       name: channel.title,
-      image: `data:image/png;base64,${channel.chatPhoto?.sizes[0].data}`,
+      image: `/img/c${channel.chatPhotoId}`,
     }
   })
 }
