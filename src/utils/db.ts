@@ -7,9 +7,9 @@ enum StoreNames {
   TA_INDEX = 'ta-index',
 }
 
-const db = await openDB('tadb', 4, {
+const db = await openDB('tadb', 6, {
   upgrade(db) {
-    for (const storeName in StoreNames) {
+    for (const storeName of Object.values(StoreNames)) {
       if (!db.objectStoreNames.contains(storeName))
         db.createObjectStore(storeName)
     }
