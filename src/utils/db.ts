@@ -1,14 +1,20 @@
 import { openDB } from 'idb'
 
-const db = await openDB('tadb', 3, {
+enum StoreNames {
+  GENERAL_SETTINGS = 'general-settings',
+  FAVOURITE_CHANNELS = 'favourite-channels',
+  MEDIA = 'media',
+  TA_INDEX = 'ta-index',
+}
+
+const db = await openDB('tadb', 4, {
   upgrade(db) {
-    if (!db.objectStoreNames.contains('general-settings'))
-      db.createObjectStore('general-settings')
-    if (!db.objectStoreNames.contains('favourite-channels'))
-      db.createObjectStore('favourite-channels')
-    if (!db.objectStoreNames.contains('ta-index'))
-      db.createObjectStore('ta-index')
+    for (const storeName in StoreNames) {
+      if (!db.objectStoreNames.contains(storeName))
+        db.createObjectStore(storeName)
+    }
   },
 })
 
 export default db
+export { StoreNames }

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
 import ImageIcon from '../sidebar/ImageIcon.vue'
-import db from '../../../utils/db'
+import db, { StoreNames } from '../../../utils/db'
 import type { Channel } from '../../../models/Channel'
 
 const expand = ref(false)
@@ -19,14 +19,14 @@ onMounted(() => {
 })
 
 async function getSelectedChannel() {
-  const channelId = await db.get('general-settings', 'selecting-channel')
+  const channelId = await db.get(StoreNames.GENERAL_SETTINGS, 'selecting-channel')
   if (!channelId) {
     selectingChannel.value = {
       name: '',
       image: defaultImage,
     }
   }
-  const _channel = await db.get('favourite-channels', channelId)
+  const _channel = await db.get(StoreNames.FAVOURITE_CHANNELS, channelId)
   const channel = JSON.parse(_channel) as Channel
   selectingChannel.value = {
     name: channel.title,

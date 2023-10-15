@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { CLIENT } from '../../utils/client'
 import InputWithLabel from '../baseComponents/InputWithLabel.vue'
-import db from '../../utils/db'
+import db, { StoreNames } from '../../utils/db'
 import Indicator from './Indicator.vue'
 import QRCodeSkeleton from './QRCodeSkeleton.vue'
 import { LoginStatus, LoginUtil } from './util'
@@ -24,7 +24,7 @@ watch(loginStatus, (status) => {
 loginUtil.onStatusChange = (status) => {
   loginStatus.value = status
   if (status === LoginStatus.FINISHED) {
-    db.put('ta-index', CLIENT.session.save(), 'session')
+    db.put(StoreNames.GENERAL_SETTINGS, CLIENT.session.save(), 'session')
     router.push('/')
   }
 }

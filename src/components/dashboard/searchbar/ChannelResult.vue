@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import type { Channel } from '../../../models/Channel'
-import db from '../../../utils/db'
+import db, { StoreNames } from '../../../utils/db'
 
 const props = defineProps<{
   channel: Channel
@@ -12,7 +12,7 @@ const searchResult = props.channel
 const favourite = ref(false)
 
 onMounted(() => {
-  db.get('favourite-channels', searchResult.id.toString()).then((res) => {
+  db.get(StoreNames.FAVOURITE_CHANNELS, searchResult.id.toString()).then((res) => {
     if (res)
       favourite.value = true
   })
@@ -20,9 +20,9 @@ onMounted(() => {
 
 function handleBtnClick() {
   if (!favourite.value)
-    db.put('favourite-channels', JSON.stringify(searchResult), searchResult.id.toString())
+    db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify(searchResult), searchResult.id.toString())
   else
-    db.delete('favourite-channels', searchResult.id.toString())
+    db.delete(StoreNames.FAVOURITE_CHANNELS, searchResult.id.toString())
   window.postMessage({ type: 'favourite-channels' }, location.href)
   favourite.value = !favourite.value
 }

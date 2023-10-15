@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { inject, ref, watch } from 'vue'
-import db from '../../../utils/db'
+import db, { StoreNames } from '../../../utils/db'
 
 const props = defineProps<{
   id?: string
@@ -24,7 +24,7 @@ watch([expand, hover, groupHover], () => {
 
 async function handleBtnClick() {
   if (props.clickable && props.id) {
-    await db.put('general-settings', props.id, 'selecting-channel')
+    await db.put(StoreNames.GENERAL_SETTINGS, props.id, 'selecting-channel')
     window.postMessage({ type: 'selecting-channel' }, location.href)
   }
 }

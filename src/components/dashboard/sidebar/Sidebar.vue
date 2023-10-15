@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, provide, ref } from 'vue'
-import db from '../../../utils/db'
+import db, { StoreNames } from '../../../utils/db'
 import type { Channel } from '../../../models/Channel'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
@@ -22,7 +22,7 @@ window.addEventListener('message', async (event) => {
 })
 
 async function updateChannels() {
-  const favouriteChannelStrings = await db.getAll('favourite-channels')
+  const favouriteChannelStrings = await db.getAll(StoreNames.FAVOURITE_CHANNELS)
   favouriteChannels.value = favouriteChannelStrings.map((_channel) => {
     const channel = JSON.parse(_channel) as Channel
     return {
