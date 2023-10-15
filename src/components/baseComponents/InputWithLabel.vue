@@ -20,12 +20,8 @@ function handleEnter(e: KeyboardEvent) {
 <template>
   <label
     :for="props.label"
-    relative
-    block
-    rounded-md
-    p-1
+    relative block rounded-md p-1 transition
     border="1 solid gray-200 focus-within:blue-600"
-    transition
   >
     <input
       :id="props.label"
@@ -33,22 +29,19 @@ function handleEnter(e: KeyboardEvent) {
       :type="props.type"
       border="none hover:none focus:none"
       outline="none hover:none focus:none"
-      text-lg
-      w-full
-      h-full
+      h-full w-full text-lg
       @focusin="focused = true"
       @focusout="focused = false"
       @keyup="handleEnter"
     >
 
     <span
-      absolute
-      pointer-events-none
-      font-sans
+
+      pointer-events-none absolute font-sans
       :text="focused ? 'xs' : 'sm'"
       :top="focused ? '0' : '1/2'"
       translate-y="-1/2"
-      class="pointer-events-none bg-white start-2.5 p-0.5 text-gray-700 transition-all"
+      class="pointer-events-none start-2.5 bg-white p-0.5 text-gray-700 transition-all"
     >
       {{ props.label }}
     </span>

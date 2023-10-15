@@ -10,35 +10,26 @@ const props = defineProps<{
 
 <template>
   <div
-    mx-auto
-    w-300px
-    relative
-    my-2
+    relative mx-auto my-2 w-300px
   >
     <Icon
       v-if="!props.done"
       icon="line-md:circle-twotone"
-      absolute left-0 top="50%" translate-y="-50%"
-      w-6 h-6
-      transition-all
-      duration-300
+      top="50%" translate-y="-50%"
+      absolute left-0 h-6 w-6 transition-all duration-300
     />
     <Icon
       v-if="props.done"
       icon="line-md:circle-twotone-to-confirm-circle-twotone-transition"
-      absolute left-0 top="50%" translate-y="-50%"
+      top="50%" translate-y="-50%"
       :color="props.done ? 'green' : 'gray'"
-      w-6 h-6
-      transition-all
-      duration-300
+      absolute left-0 h-6 w-6 transition-all duration-300
     />
     <p
-      inline
-      align-middle
+      inline align-middle
       :font="props.done ? 'sans 400' : 'sans 500'"
       :text="props.done ? 'md' : 'xl'"
-      transition-all
-      duration-300
+      transition-all duration-300
     >
       {{ props.text }}
     </p>
@@ -46,8 +37,7 @@ const props = defineProps<{
   <Transition name="to-left">
     <p
       v-if="!props.done"
-      mx-auto
-      max-w-300px
+      mx-auto max-w-300px
       font-sans text="xs gray-500"
     >
       {{ props.note }}

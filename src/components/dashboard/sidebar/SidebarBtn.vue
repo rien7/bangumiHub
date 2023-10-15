@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { inject, ref, watch } from 'vue'
-import db from '../../../utils/db';
+import db from '../../../utils/db'
 
 const props = defineProps<{
   id?: string
@@ -32,32 +32,19 @@ async function handleBtnClick() {
 
 <template>
   <div
-    :w="expand || hover ? '250px' : groupHover ? '200px' : '50px'" h-50px
-    transition-all
+    :w="expand || hover ? '250px' : groupHover ? '200px' : '50px'"
     :overflow="popup ? 'visible' : 'hidden'"
     :bg="popup ? 'gray-100 dark:gray-800' : 'none'"
-    rounded-e-full
+    h-50px rounded-e-full transition-all
     :outline="popup ? '1px solid gray-200 dark:gray-700' : 'none'"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
   >
-    <div
-      w-250px h-50px
-      text-center
-      flex
-    >
-      <div
-        inline-block
-        basis="1/5"
-        rounded-full
-        transition
-        flex items-center justify-center
-      >
+    <div h-50px w-250px flex text-center>
+      <div basis="1/5" inline-block flex items-center justify-center rounded-full transition>
         <div
-          rounded-full
-          transition
           :cursor="clickable && 'pointer'"
-          flex items-center justify-center
+          flex items-center justify-center rounded-full transition
           :bg="clickable && 'hover:gray-200 dark:hover:gray-700'"
           :ring="clickable && 'hover:2 hover:gray-300 dark:hover:gray-600'"
           @click="handleBtnClick"
@@ -66,12 +53,8 @@ async function handleBtnClick() {
         </div>
       </div>
       <div
-        inline-block
-        :basis="groupHover ? '3/5' : '4/5'"
-        flex items-center justify-center
-        font="sans 500"
-        transition-all
-        select-none
+        :basis="groupHover ? '3/5' : '4/5'" font="sans 500"
+        inline-block flex select-none items-center justify-center transition-all
       >
         {{ props.text }}
       </div>

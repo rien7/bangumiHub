@@ -4,9 +4,7 @@ import Searchbar from './searchbar/Searchbar.vue'
 </script>
 
 <template>
-  <div
-    flex
-  >
+  <div flex>
     <Sidebar />
     <Searchbar />
   </div>

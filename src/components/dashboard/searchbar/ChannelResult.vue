@@ -29,29 +29,29 @@ function handleBtnClick() {
 </script>
 
 <template>
-  <div w-full flex flex-col py-2 px-8>
+  <div w-full flex flex-col px-8 py-2>
     <div flex>
-      <div w-16 h-16 rounded-full>
+      <div h-16 w-16 rounded-full>
         <!-- TODO: don't use base64 -->
-        <img :src="`data:image/png;base64,${searchResult?.chatPhoto?.getPhoto()}`" class="w-full h-full rounded-full">
+        <img :src="`data:image/png;base64,${searchResult?.chatPhoto?.getPhoto()}`" class="h-full w-full rounded-full">
       </div>
-      <div flex flex-col ml-4 h-16 justify-center>
-        <div font-600 text-lg>
+      <div ml-4 h-16 flex flex-col justify-center>
+        <div text-lg font-600>
           {{ searchResult?.title }}
         </div>
-        <div mt-2 font-mono text-xs>
+        <div mt-2 text-xs font-mono>
           @{{ searchResult?.username }}
         </div>
       </div>
       <div
-        w-8 h-8 rounded-full ml-auto transition-all cursor-pointer p-1
+        ml-auto h-8 w-8 cursor-pointer rounded-full p-1 transition-all
         @click="handleBtnClick"
       >
-        <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="w-full h-full rounded-full" />
+        <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="h-full w-full rounded-full" />
       </div>
     </div>
-    <div flex flex-col mt-4>
-      <div w-full text-sm whitespace-pre-wrap>
+    <div mt-4 flex flex-col>
+      <div w-full whitespace-pre-wrap text-sm>
         {{ searchResult?.about }}
       </div>
     </div>

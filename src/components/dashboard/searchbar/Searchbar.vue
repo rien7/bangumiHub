@@ -41,39 +41,35 @@ async function handleInputSubmit(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div flex flex-col items-center w-full mt-2>
-    <div z-1 h-50px w-full flex justify-center items-center>
+  <div mt-2 w-full flex flex-col items-center>
+    <div z-1 h-50px w-full flex items-center justify-center>
       <div
-        relative flex
-        w-full h-12 px-1
-        max-w-500px
-        items-center :rounded="searching !== SearchState.Idle ? 't-25px' : 'full'"
+        :rounded="searching !== SearchState.Idle ? 't-25px' : 'full'"
         border="1 gray-200 dark:gray-700"
         shadow="~ gray-200 dark:gray-700"
-        overflow-hidden
+        relative h-12 max-w-500px w-full flex items-center overflow-hidden px-1
       >
         <Transition name="from-left">
           <Indicator v-if="currentSearchType === SearchType.Messages" />
         </Transition>
         <input
           ref="inputField"
-          bg-transparent h-full flex-grow
-          px-2
+          h-full flex-grow bg-transparent px-2
           border="none hover:none focus:none"
           outline="none hover:none focus:none"
           type="text"
           @keyup="handleInputSubmit"
         >
         <div
-          bg="gray-200 dark:gray-700 hover:gray-300 hover:dark:gray-600" p-2 rounded-full mr-1
-          cursor-pointer transition
+          bg="gray-200 dark:gray-700 hover:gray-300 hover:dark:gray-600"
+          mr-1 cursor-pointer rounded-full p-2 transition
           @click="switchMessageChannel"
         >
           <Icon width="20px" :icon="currentSearchType === SearchType.Messages ? 'mingcute:message-3-line' : 'mingcute:horn-line'" />
         </div>
       </div>
     </div>
-    <div v-if="searching !== SearchState.Idle" w-full max-w-500px translate-y="-1px" p-2 border="1 gray-200 dark:gray-700" rounded-b-md>
+    <div v-if="searching !== SearchState.Idle" translate-y="-1px" border="1 gray-200 dark:gray-700" max-w-500px w-full rounded-b-md p-2>
       <ChannelSkeleton v-if="searching === SearchState.Searching" />
       <ChannelResult v-else :channel="searchResult!" />
     </div>

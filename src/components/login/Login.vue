@@ -40,14 +40,9 @@ onMounted(() => {
 
 <template>
   <div
-    w-100
-    absolute
     top="50%" left="50%"
     translate-x="-50%" translate-y="-50%"
-    text-center
-    rounded-md
-    p-4
-    overflow-hidden
+    absolute w-100 overflow-hidden rounded-md p-4 text-center
   >
     <Indicator
       :done="loginStatus !== LoginStatus.QR_CODE_WAITING"
@@ -65,9 +60,7 @@ onMounted(() => {
       note="You have Two-Step Verification enabled, so your account is protected with an additional password."
     >
       <InputWithLabel
-        mx-auto
-        block
-        w-50 h-8
+        mx-auto block h-8 w-50
         label="Password"
         type="password"
         @submit="handleSubmit"

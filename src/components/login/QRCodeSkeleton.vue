@@ -1,5 +1,5 @@
 <template>
-  <div w-256px h-256px mx-auto bg-gray-400 rounded-md animate-pulse>
+  <div mx-auto h-256px w-256px animate-pulse rounded-md bg-gray-400>
     <svg width="256" height="256">
       <defs>
         <clipPath id="clip-path-dot-color">

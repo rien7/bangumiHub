@@ -36,11 +36,10 @@ async function updateChannels() {
 
 <template>
   <div
-    :w="expand ? '250px' : '50px'" h-100vh
-    z-10 relative
+    :w="expand ? '250px' : '50px'"
     border-r="1px solid gray-200 dark:gray-700"
     shadow="lg gray-200 dark:gray-700"
-    transition-all
+    relative z-10 h-100vh transition-all
   >
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
       <SidebarBtn

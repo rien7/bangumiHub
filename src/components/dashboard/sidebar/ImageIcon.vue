@@ -6,9 +6,7 @@ const props = defineProps<{
 
 <template>
   <div
-    w-8 h-8
-    rounded-full
-    overflow-hidden
+    h-8 w-8 overflow-hidden rounded-full
   >
     <img :src="props.src">
   </div>
