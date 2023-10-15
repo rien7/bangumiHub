@@ -39,8 +39,10 @@ async function getSelectedChannel() {
   <div
     flex justify-center items-center rounded-full h-10 px-1 overflow-hidden
     bg="gray-200 dark:gray-700"
+    @mouseenter="expand = true"
+    @mouseleave="expand = false"
   >
-    <ImageIcon :src="selectingChannel?.image || ''" cursor-pointer @click="expand = !expand" />
+    <ImageIcon :src="selectingChannel?.image || ''" />
     <span
       ml-2 mr-1 text-sm select-none
       :w="expand ? 'auto' : '0'"

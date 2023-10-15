@@ -41,7 +41,7 @@ async function handleInputSubmit(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div flex flex-col items-center w-full>
+  <div flex flex-col items-center w-full mt-2>
     <div z-1 h-50px w-full flex justify-center items-center>
       <div
         relative flex
