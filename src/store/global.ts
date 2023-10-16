@@ -5,6 +5,7 @@ import db, { StoreNames } from '@/utils/db'
 
 const useGlobalStore = defineStore('global', () => {
   const acviteChannel = ref<Channel>()
+  const messageQuery = ref<string>('')
 
   function setActiveChannelById(channelId: string) {
     db.get(StoreNames.FAVOURITE_CHANNELS, channelId).then((_channel) => {
@@ -13,9 +14,15 @@ const useGlobalStore = defineStore('global', () => {
     })
   }
 
+  function setMessageQuery(query: string) {
+    messageQuery.value = query
+  }
+
   return {
     acviteChannel,
+    messageQuery,
     setActiveChannelById,
+    setMessageQuery,
   }
 })
 

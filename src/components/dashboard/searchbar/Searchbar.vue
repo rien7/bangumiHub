@@ -1,13 +1,11 @@
 <script setup lang='ts'>
-import { onMounted, provide, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import { storeToRefs } from 'pinia'
 import Indicator from './Indicator.vue'
 import ChannelSkeleton from './ChannelSkeleton.vue'
 import { getChannel } from './searchChannel'
 import ChannelResult from './ChannelResult.vue'
-import searchMsgTelegram from './searchMsgTelegram'
-import db, { StoreNames } from '@/utils/db'
 import type Channel from '@/models/Channel'
 import useGlobalStore from '@/store/global'
 
@@ -51,6 +49,12 @@ async function handleInputSubmit(e: KeyboardEvent) {
     searching.value = SearchState.Searching
     searchResult.value = await getChannel(inputField.value!.value)
     searching.value = SearchState.Done
+  }
+  else {
+    const query = inputField.value!.value
+    if (!acviteChannel.value)
+      return
+    globalStore.setMessageQuery(query)
   }
 }
 </script>

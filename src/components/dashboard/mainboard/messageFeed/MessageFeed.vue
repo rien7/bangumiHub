@@ -1,10 +1,13 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
 import type Message from '@/models/Message'
 import db, { StoreNames } from '@/utils/db'
 import type Channel from '@/models/Channel'
+import useGlobalStore from '@/store/global'
 
 let lastMessageId = 0
 
@@ -13,6 +16,22 @@ const messages = ref<Message[]>([])
 const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
+const globalStore = useGlobalStore()
+const { acviteChannel, messageQuery } = storeToRefs(globalStore)
+
+watch([acviteChannel, messageQuery], () => {
+  if (messageQuery.value.length === 0) {
+    lastMessageId = 0
+    messages.value = []
+    getMessages()
+  }
+  else {
+    lastMessageId = 0
+    messages.value = []
+    searchMessages()
+  }
+})
+
 window.addEventListener('message', async (event) => {
   if (event.data.type === 'selecting-channel')
     await init()
@@ -20,8 +39,12 @@ window.addEventListener('message', async (event) => {
 
 async function onScroll() {
   const { scrollTop, scrollHeight, clientHeight } = messageFeed.value!
-  if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value)
-    await getMessages()
+  if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value) {
+    if (messageQuery.value.length === 0)
+      await getMessages()
+    else
+      await searchMessages()
+  }
 }
 
 async function init() {
@@ -39,10 +62,20 @@ async function init() {
 }
 
 async function getMessages() {
-  if (!curerntChannel.value || !curerntChannel.value.accessHash)
+  if (!acviteChannel.value || !acviteChannel.value.accessHash)
     return
   updating.value = true
-  const newMessages = await getChannelMessages(curerntChannel.value?.id, lastMessageId, curerntChannel.value.accessHash)
+  const newMessages = await getChannelMessages(acviteChannel.value?.id, lastMessageId, acviteChannel.value.accessHash)
+  messages.value = messages.value.concat(newMessages)
+  lastMessageId = messages.value[messages.value.length - 1].id
+  updating.value = false
+}
+
+async function searchMessages() {
+  if (!acviteChannel.value || !acviteChannel.value.accessHash || !messageQuery.value)
+    return
+  updating.value = true
+  const newMessages = await searchMsgTelegram(acviteChannel.value?.id, messageQuery.value, lastMessageId, acviteChannel.value.accessHash)
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
@@ -55,7 +88,7 @@ onMounted(async () => {
 
 <template>
   <div
-    ref="messageFeed" flex flex-wrap justify-around gap-6 overflow-y-scroll p-8
+    ref="messageFeed" flex flex-wrap gap-6 overflow-y-scroll p-8
     @scroll="onScroll"
   >
     <div v-for="message in messages" :key="message.id">
@@ -63,3 +96,4 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+./searchMsgTelegram
