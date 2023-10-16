@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import Sidebar from './sidebar/Sidebar.vue'
 import Searchbar from './searchbar/Searchbar.vue'
+import MainBoard from './mainboard/MainBoard.vue'
 </script>
 
 <template>
-  <div flex>
+  <div h-100vh flex>
     <Sidebar />
-    <Searchbar />
+    <div w-full flex flex-col>
+      <Searchbar />
+      <MainBoard />
+    </div>
   </div>
 </template>
