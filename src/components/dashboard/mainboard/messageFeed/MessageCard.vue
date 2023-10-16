@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import ActionBtn from './ActionBtn.vue'
 import MarkTool from './markTools/MarkTool.vue'
@@ -16,6 +16,18 @@ const { markingColor } = storeToRefs(messageCardStore)
 
 const hoverImg = ref(false)
 const markingTitleMeta = ref(false)
+const delay300 = ref(false)
+
+watch([markingTitleMeta], () => {
+  if (markingTitleMeta.value) {
+    setTimeout(() => {
+      delay300.value = true
+    }, 300)
+  }
+  else {
+    delay300.value = false
+  }
+})
 
 function click() {
   markingTitleMeta.value = !markingTitleMeta.value
@@ -47,17 +59,19 @@ function click() {
       bg="gray-100 dark:gray-800"
       :h="markingTitleMeta ? '46' : '22'"
       absolute bottom-0
-      w-full px-4 py-2 transition-all
+      w-full px-4 py-2 transition-all duration-300
     >
       <div
         :line-clamp="markingTitleMeta ? 7 : 3"
         :selection="markingTitleMeta"
       >
-        <span v-if="!markingTitleMeta">{{ props.message!.message }}</span>
+        <span v-if="!delay300">{{ props.message!.message }}</span>
         <SelectText v-else :text="props.message!.message" :color="markingColor" />
       </div>
     </div>
-    <MarkTool v-if="markingTitleMeta" absolute bottom-0 h-6 w-full />
+    <Transition name="from-bottom">
+      <MarkTool v-if="markingTitleMeta" absolute bottom-0 h-6 w-full />
+    </Transition>
   </div>
 </template>
 
@@ -74,5 +88,20 @@ div[rounded-md] {
   -webkit-box-shadow: var(--un-shadow-inset) 0 0 8px 1px var(--un-shadow-color, rgba(0,0,0,0.1));
   -moz-box-shadow: var(--un-shadow-inset) 0 0 8px 1px var(--un-shadow-color, rgba(0,0,0,0.1));
   box-shadow: var(--un-shadow-inset) 0 0 8px 1px var(--un-shadow-color, rgba(0,0,0,0.1));
+}
+
+.from-bottom-enter-from,
+.from-bottom-leave-to {
+  transform: translateY(100%);
+}
+
+.from-bottom-enter-to,
+.from-bottom-leave-from {
+  transform: translateY(0);
+}
+
+.from-bottom-enter-active,
+.from-bottom-leave-active {
+  transition: transform 300ms;
 }
 </style>
