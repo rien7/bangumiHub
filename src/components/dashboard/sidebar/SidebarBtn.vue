@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { inject, ref, watch } from 'vue'
-import db, { StoreNames } from '../../../utils/db'
 import { shadeColor } from './getMainColor'
+import db, { StoreNames } from '@/utils/db'
 
 const props = defineProps<{
   id?: string

@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import UnoCss from 'unocss/vite'
 import vue from '@vitejs/plugin-vue'
@@ -20,4 +21,10 @@ export default defineConfig({
       filename: 'worker.ts',
     }),
   ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '#root': resolve(__dirname),
+    },
+  },
 })

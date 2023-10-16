@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { CLIENT } from '../../utils/client'
 import InputWithLabel from '../baseComponents/InputWithLabel.vue'
-import db, { StoreNames } from '../../utils/db'
 import Indicator from './Indicator.vue'
 import QRCodeSkeleton from './QRCodeSkeleton.vue'
 import { LoginStatus, LoginUtil } from './util'
+import db, { StoreNames } from '@/utils/db'
+import { CLIENT } from '@/utils/client'
 
 const router = useRouter()
 const loginUtil = LoginUtil.SINGLETON

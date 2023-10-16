@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, provide, ref } from 'vue'
-import db, { StoreNames } from '../../../utils/db'
-import type Channel from '../../../models/Channel'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 import ImageIcon from './ImageIcon.vue'
 import SidebarGroup from './SidebarGroup.vue'
+import type Channel from '@/models/Channel'
+import db, { StoreNames } from '@/utils/db'
 
 const expand = ref(false)
 provide('expand', expand)

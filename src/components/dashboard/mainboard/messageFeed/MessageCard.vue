@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { Message } from '../../../../models/Message'
+import Message from '@/models/Message'
 
 const props = defineProps({
   message: Message,

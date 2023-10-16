@@ -1,4 +1,4 @@
-import ColorThief from '../../../../node_modules/colorthief/dist/color-thief.mjs'
+import ColorThief from '#root/node_modules/colorthief/dist/color-thief.mjs'
 
 const colorThief = new ColorThief()
 

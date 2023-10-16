@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
-import type { Message } from '../../../../models/Message'
-import db, { StoreNames } from '../../../../utils/db'
-import type Channel from '../../../../models/Channel'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
+import type Message from '@/models/Message'
+import db, { StoreNames } from '@/utils/db'
+import type Channel from '@/models/Channel'
 
 let lastMessageId = 0
 

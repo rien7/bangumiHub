@@ -6,6 +6,9 @@ import Indicator from './Indicator.vue'
 import ChannelSkeleton from './ChannelSkeleton.vue'
 import { getChannel } from './searchChannel'
 import ChannelResult from './ChannelResult.vue'
+import searchMsgTelegram from './searchMsgTelegram'
+import db, { StoreNames } from '@/utils/db'
+import type Channel from '@/models/Channel'
 
 enum SearchType {
   Messages,

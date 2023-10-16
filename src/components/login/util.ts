@@ -2,7 +2,7 @@ import QRCodeStyling from 'qr-code-styling'
 import { Api } from 'telegram'
 import { computeCheck } from 'telegram/Password'
 import { RPCError } from 'telegram/errors'
-import { CLIENT, SESSION_STRING } from '../../utils/client'
+import { CLIENT, SESSION_STRING } from '@/utils/client'
 
 enum LoginStatus {
   QR_CODE_WAITING = 'qrCodeWaiting',

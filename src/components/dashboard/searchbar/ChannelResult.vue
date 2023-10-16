@@ -1,8 +1,8 @@
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
-import type Channel from '../../../models/Channel'
-import db, { StoreNames } from '../../../utils/db'
+import type Channel from '@/models/Channel'
+import db, { StoreNames } from '@/utils/db'
 
 const props = defineProps<{
   channel: Channel
