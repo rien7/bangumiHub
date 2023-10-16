@@ -9,6 +9,7 @@ import useSidebarStore from '@/store/sidebar'
 const props = defineProps<{
   id?: string
   text: string
+  expandable: boolean
   clickable: boolean
   image?: string
 }>()
@@ -38,7 +39,9 @@ const sidebarFontColor = computed(() => {
 })
 
 watch([expand, hover], () => {
-  if (!expand.value && hover.value)
+  if (!props.expandable)
+    popup.value = false
+  else if (!expand.value && hover.value)
     popup.value = true
   else
     popup.value = false
@@ -68,9 +71,12 @@ async function handleBtnClick() {
       <div basis="1/5" flex items-center justify-center rounded-full transition>
         <div
           :cursor="clickable && 'pointer'"
-          flex items-center justify-center rounded-full transition
+          flex items-center justify-center rounded-full transition-all
           :bg="clickable && 'hover:gray-200 dark:hover:gray-700'"
-          :ring="clickable && 'hover:2 hover:gray-100/80'"
+          :outline="clickable && 'hover:2px hover:solid hover:gray-100/80'"
+          :style="{
+            outlineColor: popup ? `${sidebarOutlineColor} !important` : '',
+          }"
           @click="handleBtnClick"
         >
           <slot />

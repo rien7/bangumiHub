@@ -43,20 +43,19 @@ async function updateChannels() {
     :w="expand ? '250px' : '50px'"
     border-r="1px solid gray-200 dark:gray-700"
     shadow="lg gray-200 dark:gray-700"
-    relative z-10 h-100vh transition-all
+    relative z-10 h-100vh flex flex-col justify-end transition-all
   >
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"
-        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true" :image="channel.image"
+        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true" :image="channel.image" :expandable="true"
       >
         <ImageIcon :src="channel.image" />
       </SidebarBtn>
     </SidebarGroup>
 
     <SidebarBtn
-      text="Menu" :clickable="true"
-      absolute bottom-0
+      text="Menu" :clickable="true" :expandable="true"
       @click="expand = !expand"
     >
       <SvgIcon icon="line-md:menu" />

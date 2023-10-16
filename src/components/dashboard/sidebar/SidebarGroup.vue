@@ -6,12 +6,11 @@ const props = defineProps<{
   title: string
   icon: string
 }>()
-
 </script>
 
 <template>
   <SidebarBtn
-    :text="props.title" :clickable="false"
+    :text="props.title" :clickable="false" :expandable="false"
   >
     <SvgIcon :icon="props.icon" />
   </SidebarBtn>
