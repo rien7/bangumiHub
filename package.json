@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@unocss/reset": "^0.56.5",
+    "@vueuse/core": "^10.5.0",
     "buffer": "^6.0.3",
     "colorthief": "^2.4.0",
     "idb": "^7.1.1",
     "node-stdlib-browser": "^1.2.0",
+    "pinia": "^2.1.7",
     "qr-code-styling": "1.6.0-rc.1",
     "telegram": "^2.19.8",
     "vue": "^3.3.4",

@@ -1,24 +1,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import getMainColor from './getMainColor'
+import useSidebarStore from '@/store/sidebar'
 
 const props = defineProps<{
   src: string
 }>()
 
 const imgDom = ref<HTMLImageElement>()
-const color = ref<string>()
+
+const sidebarStore = useSidebarStore()
+
 onMounted(() => {
   if (!props.src)
     return
   if (imgDom.value && imgDom.value.complete) {
-    color.value = getMainColor(imgDom.value!)
-    postMessage({ type: 'sidebar-color', url: props.src, color: color.value }, location.href)
+    const color = getMainColor(imgDom.value!)
+    sidebarStore.addColors(props.src, color)
   }
   else {
     imgDom.value!.addEventListener('load', () => {
-      color.value = getMainColor(imgDom.value!)
-      postMessage({ type: 'sidebar-color', url: props.src, color: color.value }, location.href)
+      const color = getMainColor(imgDom.value!)
+      sidebarStore.addColors(props.src, color)
     })
   }
 })
@@ -28,6 +31,6 @@ onMounted(() => {
   <div
     h-8 w-8 overflow-hidden rounded-full
   >
-    <img ref="imgDom" :src="props.src" :color="color">
+    <img ref="imgDom" :src="props.src">
   </div>
 </template>

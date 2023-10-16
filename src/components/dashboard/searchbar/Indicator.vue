@@ -1,38 +1,13 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import ImageIcon from '../sidebar/ImageIcon.vue'
-import db, { StoreNames } from '../../../utils/db'
-import type Channel from '../../../models/Channel'
+import useGlobalStore from '@/store/global'
 
 const expand = ref(false)
-const defaultImage = 'https://avatars.githubusercontent.com/u/68459896?v=4'
 
-const selectingChannel = ref<{ name: string; image: string }>()
-
-window.addEventListener('message', async (event) => {
-  if (event.data.type === 'selecting-channel')
-    getSelectedChannel()
-})
-
-onMounted(() => {
-  getSelectedChannel()
-})
-
-async function getSelectedChannel() {
-  const channelId = await db.get(StoreNames.GENERAL_SETTINGS, 'selecting-channel')
-  if (!channelId) {
-    selectingChannel.value = {
-      name: '',
-      image: defaultImage,
-    }
-  }
-  const _channel = await db.get(StoreNames.FAVOURITE_CHANNELS, channelId)
-  const channel = JSON.parse(_channel) as Channel
-  selectingChannel.value = {
-    name: channel.title,
-    image: `/img/c${channel.chatPhotoId}`,
-  }
-}
+const globalStore = useGlobalStore()
+const { acviteChannel } = storeToRefs(globalStore)
 </script>
 
 <template>
@@ -42,14 +17,14 @@ async function getSelectedChannel() {
     @mouseenter="expand = true"
     @mouseleave="expand = false"
   >
-    <ImageIcon :src="selectingChannel?.image || ''" />
+    <ImageIcon :src="`/img/c${acviteChannel?.chatPhotoId}`" />
     <span
       :w="expand ? 'auto' : '0'"
       :opacity="expand ? '100%' : '0'"
       :m="expand ? '0 auto' : '!0'"
       ml-2 mr-1 select-none text-sm transition-all duration-100
     >
-      {{ selectingChannel?.name }}
+      {{ acviteChannel?.title }}
     </span>
   </div>
 </template>

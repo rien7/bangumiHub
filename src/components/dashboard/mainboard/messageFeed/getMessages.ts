@@ -1,6 +1,6 @@
 import { Api } from 'telegram'
 import { CLIENT } from '../../../../utils/client'
-import { Message } from '../../../../models/Message'
+import Message from '../../../../models/Message'
 
 async function getChannelMessages(channelId: bigInt.BigInteger, offsetId?: number, accessHash?: bigInt.BigInteger) {
   const result = await CLIENT.invoke(

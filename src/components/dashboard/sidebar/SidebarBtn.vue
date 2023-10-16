@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import { inject, ref, watch } from 'vue'
-import { shadeColor } from './getMainColor'
-import db, { StoreNames } from '@/utils/db'
+import { computed, inject, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { getShadeColor } from './getMainColor'
+import useGlobalStore from '@/store/global'
+import useSidebarStore from '@/store/sidebar'
 
 const props = defineProps<{
   id?: string
@@ -13,8 +15,27 @@ const props = defineProps<{
 const expand = inject<Ref<boolean>>('expand')!
 const hover = ref(false)
 const popup = ref(false)
-const sidebarColor = ref<string>()
-const sidebarOutlineColor = ref<string>()
+
+const globalStore = useGlobalStore()
+const sidebarStore = useSidebarStore()
+
+const { colors } = storeToRefs(sidebarStore)
+const sidebarColor = computed(() => {
+  const color = colors.value.filter(color => color.url === props.image)[0]
+  return color?.color || ''
+})
+const sidebarOutlineColor = computed(() => {
+  if (!sidebarColor.value)
+    return ''
+  const shadeColor = getShadeColor(sidebarColor.value, -20)
+  return shadeColor
+})
+const sidebarFontColor = computed(() => {
+  if (!sidebarColor.value)
+    return ''
+  const shadeColor = getShadeColor(sidebarColor.value, -60)
+  return shadeColor
+})
 
 watch([expand, hover], () => {
   if (!expand.value && hover.value)
@@ -24,18 +45,9 @@ watch([expand, hover], () => {
 })
 
 async function handleBtnClick() {
-  if (props.clickable && props.id) {
-    await db.put(StoreNames.GENERAL_SETTINGS, props.id, 'selecting-channel')
-    window.postMessage({ type: 'selecting-channel' }, location.href)
-  }
+  if (props.clickable && props.id)
+    globalStore.setActiveChannelById(props.id)
 }
-
-window.addEventListener('message', (event) => {
-  if (event.data.type === 'sidebar-color' && event.data.url === props.image && event.data.color) {
-    sidebarColor.value = event.data.color
-    sidebarOutlineColor.value = shadeColor(event.data.color, -20)
-  }
-})
 </script>
 
 <template>
@@ -67,6 +79,9 @@ window.addEventListener('message', (event) => {
       <div
         basis="4/5" font="sans 500" :opacity="expand || popup ? '100' : '0'"
         mx-1 flex select-none items-center justify-center text-sm transition-all
+        :style="{
+          color: popup ? `${sidebarFontColor} !important` : '',
+        }"
       >
         {{ props.text }}
       </div>

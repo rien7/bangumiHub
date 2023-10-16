@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { ref } from 'vue'
+import { onMounted, provide, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
-import type { Channel } from '../../../models/Channel'
+import { storeToRefs } from 'pinia'
 import Indicator from './Indicator.vue'
 import ChannelSkeleton from './ChannelSkeleton.vue'
 import { getChannel } from './searchChannel'
@@ -9,6 +9,7 @@ import ChannelResult from './ChannelResult.vue'
 import searchMsgTelegram from './searchMsgTelegram'
 import db, { StoreNames } from '@/utils/db'
 import type Channel from '@/models/Channel'
+import useGlobalStore from '@/store/global'
 
 enum SearchType {
   Messages,
@@ -21,13 +22,24 @@ enum SearchState {
   Done,
 }
 
+const globalStore = useGlobalStore()
+const { acviteChannel } = storeToRefs(globalStore)
+
 const inputField = ref<HTMLInputElement | null>(null)
-const currentSearchType = ref(SearchType.Messages)
+const currentSearchType = ref(SearchType.Channels)
+
+watch([acviteChannel], () => {
+  if (!acviteChannel.value)
+    return
+  currentSearchType.value = SearchType.Messages
+})
 
 const searching = ref(SearchState.Idle)
 const searchResult = ref<Channel | null>(null)
 
 function switchMessageChannel() {
+  if (!acviteChannel.value)
+    return
   inputField.value!.value = ''
   currentSearchType.value = currentSearchType.value === SearchType.Messages ? SearchType.Channels : SearchType.Messages
 }

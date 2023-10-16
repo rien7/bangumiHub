@@ -14,7 +14,7 @@ function getMainColor(imageDom: HTMLImageElement) {
   return rgbToHex(color[0], color[1], color[2])
 }
 
-function shadeColor(color: string, percent: number) {
+function getShadeColor(color: string, percent: number) {
   let R = Number.parseInt(color.substring(1, 3), 16)
   let G = Number.parseInt(color.substring(3, 5), 16)
   let B = Number.parseInt(color.substring(5, 7), 16)
@@ -39,4 +39,4 @@ function shadeColor(color: string, percent: number) {
 }
 
 export default getMainColor
-export { shadeColor }
+export { getShadeColor }

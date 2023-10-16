@@ -6,10 +6,12 @@ import ImageIcon from './ImageIcon.vue'
 import SidebarGroup from './SidebarGroup.vue'
 import type Channel from '@/models/Channel'
 import db, { StoreNames } from '@/utils/db'
+import useGlobalStore from '@/store/global'
 
 const expand = ref(false)
 provide('expand', expand)
 
+const globalStore = useGlobalStore()
 const favouriteChannels = ref<{ id: bigInt.BigInteger; name: string; image: string }[]>([])
 
 onMounted(async () => {
@@ -31,6 +33,8 @@ async function updateChannels() {
       image: `/img/c${channel.chatPhotoId}`,
     }
   })
+  if (!globalStore.acviteChannel)
+    globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }
 </script>
 
