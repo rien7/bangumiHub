@@ -18,17 +18,6 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src/workers',
       filename: 'worker.ts',
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /img/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'img-cache',
-            },
-          },
-        ],
-      },
     }),
   ],
 })

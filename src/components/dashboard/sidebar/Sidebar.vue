@@ -44,7 +44,7 @@ async function updateChannels() {
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"
-        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true"
+        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true" :image="channel.image"
       >
         <ImageIcon :src="channel.image" />
       </SidebarBtn>
