@@ -1,21 +1,63 @@
 <script setup lang='ts'>
-import Message from '@/models/Message'
+import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import ActionBtn from './ActionBtn.vue'
+import MarkTool from './markTools/MarkTool.vue'
+import SelectText from './markTools/SelectText.vue'
+import type Message from '@/models/Message'
+import useMessageCardStore from '@/store/messageCard'
 
-const props = defineProps({
-  message: Message,
-})
+const props = defineProps<{
+  message: Message
+}>()
+
+const messageCardStore = useMessageCardStore()
+const { markingColor } = storeToRefs(messageCardStore)
+
+const hoverImg = ref(false)
+const markingTitleMeta = ref(false)
+
+function click() {
+  markingTitleMeta.value = !markingTitleMeta.value
+  if (!markingTitleMeta.value)
+    messageCardStore.clear()
+  else
+    messageCardStore.setMarkingCardId(props.message.id)
+}
 </script>
 
 <template>
-  <div class="message-card" w-80 flex flex-col overflow-hidden rounded-md shadow="gray-200 dark:gray-700">
-    <div h-45 w-full overflow-hidden>
-      <img :src="`/img/m${props.message?.mediaId}`" class="h-full w-full">
-    </div>
-    <div h-22 w-full bg-gray-100 px-4 py-2 dark:bg-gray-800>
-      <div line-clamp-3>
-        <span>{{ props.message!.message }}</span>
+  <div class="message-card" relative h-67 w-80 flex flex-col overflow-hidden rounded-md shadow="gray-200 dark:gray-700">
+    <div
+      relative h-45 w-full overflow-hidden
+      @mouseenter="hoverImg = true"
+      @mouseleave="hoverImg = false"
+    >
+      <img :src="`/img/m${props.message?.mediaId}`" class="h-full w-full" absolute top-0>
+      <div absolute right-0 top-0>
+        <ActionBtn
+          icon="material-symbols:format-image-left-rounded"
+          :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
+          transition
+          @click="click"
+        />
       </div>
     </div>
+    <div
+      bg="gray-100 dark:gray-800"
+      :h="markingTitleMeta ? '46' : '22'"
+      absolute bottom-0
+      w-full px-4 py-2 transition-all
+    >
+      <div
+        :line-clamp="markingTitleMeta ? 7 : 3"
+        :selection="markingTitleMeta"
+      >
+        <span v-if="!markingTitleMeta">{{ props.message!.message }}</span>
+        <SelectText v-else :text="props.message!.message" :color="markingColor" />
+      </div>
+    </div>
+    <MarkTool v-if="markingTitleMeta" absolute bottom-0 h-6 w-full />
   </div>
 </template>
 
