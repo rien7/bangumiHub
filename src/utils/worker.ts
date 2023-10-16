@@ -17,7 +17,7 @@ async function imageHandler(url: string) {
   const imgType = imgPath[0]
   const imgId = imgPath.slice(1)
 
-  let { id, accessHash, fileReference } = await db.get(StoreNames.MEDIA, imgId)
+  let { id, accessHash, fileReference, dcId } = await db.get(StoreNames.MEDIA, imgId)
 
   fileReference = Buffer.from(fileReference as ArrayBuffer)
 
@@ -28,7 +28,7 @@ async function imageHandler(url: string) {
       accessHash,
       fileReference,
       thumbSize: 'v',
-    })) as Api.upload.File
+    }), dcId)
   }
   else {
     try {
@@ -37,7 +37,7 @@ async function imageHandler(url: string) {
         accessHash,
         fileReference,
         thumbSize: 'a',
-      })) as Api.upload.File
+      }), dcId)
     }
     catch (error) {
       if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
@@ -60,7 +60,7 @@ async function imageHandler(url: string) {
           accessHash,
           fileReference,
           thumbSize: 'a',
-        })) as Api.upload.File
+        }), dcId)
       }
       else { throw error }
     }
@@ -69,6 +69,6 @@ async function imageHandler(url: string) {
   navigator.serviceWorker.controller?.postMessage({
     type: 'img-result',
     url,
-    imgData: imgData?.bytes,
+    imgData,
   })
 }

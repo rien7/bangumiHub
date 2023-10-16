@@ -10,6 +10,7 @@ class Media {
   h?: number
   size: bigInt.BigInteger
   mimeType: string
+  dcId: number
 
   constructor(media: Api.MessageMediaDocument) {
     const document = media.document as Api.Document
@@ -26,6 +27,7 @@ class Media {
     }
     this.size = document.size
     this.mimeType = document.mimeType
+    this.dcId = document.dcId
   }
 }
 

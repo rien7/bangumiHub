@@ -29,6 +29,8 @@ const currentSearchType = ref(SearchType.Channels)
 watch([acviteChannel], () => {
   if (!acviteChannel.value)
     return
+  inputField.value!.value = ''
+  globalStore.setMessageQuery('')
   currentSearchType.value = SearchType.Messages
 })
 
@@ -39,12 +41,13 @@ function switchMessageChannel() {
   if (!acviteChannel.value)
     return
   inputField.value!.value = ''
+  globalStore.setMessageQuery('')
   currentSearchType.value = currentSearchType.value === SearchType.Messages ? SearchType.Channels : SearchType.Messages
 }
 
-async function handleInputSubmit(e: KeyboardEvent) {
-  if (e.key !== 'Enter')
-    return
+async function handleInputSubmit(_e: KeyboardEvent) {
+  // if (e.key !== 'Enter')
+  //   return
   if (currentSearchType.value === SearchType.Channels) {
     searching.value = SearchState.Searching
     searchResult.value = await getChannel(inputField.value!.value)
