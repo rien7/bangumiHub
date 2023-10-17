@@ -49,7 +49,7 @@ const useMessageCardStore = defineStore('messageCard', () => {
     }
     if (type)
       markedType.splice(markedType.indexOf(type), 1)
-    const newMarkingSelections = []
+    const newMarkingSelections: { text: string; color: string | null }[] = []
     let tempText = ''
     for (const selection of markingSelections.value) {
       if (selection.color !== null) {
