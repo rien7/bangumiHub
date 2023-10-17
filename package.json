@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/color-thief-node": "^1.0.2",
     "@unocss/reset": "^0.56.5",
     "@vueuse/core": "^10.5.0",
     "buffer": "^6.0.3",
