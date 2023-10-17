@@ -11,7 +11,7 @@ import '@unocss/reset/tailwind.css'
 const routes = [
   { path: '/', component: Dashboard },
   { path: '/login', component: Login },
-  { path: '/video/:id', component: Video },
+  { path: '/v/:id', component: Video },
 ]
 
 const router = createRouter({

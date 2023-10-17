@@ -1,10 +1,12 @@
 <script setup lang='ts'>
 import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
+import type { MarkType } from '@/store/messageCard'
 import useMessageCardStore from '@/store/messageCard'
 
 const props = defineProps<{
   color: string | null
+  type: MarkType | null
   text: string
 }>()
 
@@ -16,6 +18,7 @@ onMounted(() => {
   messageCardStore.setSelection([{
     text: props.text,
     color: null,
+    type: null,
   }])
 })
 
@@ -70,20 +73,23 @@ function onMouseUpHandler() {
 
   const selections = markingSelections.value
   let count = 0
-  const newSelections: { text: string; color: string | null }[] = []
+  const newSelections: { text: string; color: string | null; type: MarkType | null }[] = []
   for (const [index, selection] of selections.entries()) {
     if (selectionStart >= count && selectionEnd <= count + selection.text.length) {
       newSelections.push({
         text: selection.text.slice(0, selectionStart - count),
         color: null,
+        type: null,
       })
       newSelections.push({
         text: selection.text.slice(selectionStart - count, selectionEnd - count),
         color: props.color,
+        type: props.type,
       })
       newSelections.push({
         text: selection.text.slice(selectionEnd - count),
         color: null,
+        type: null,
       })
       newSelections.push(...selections.slice(index + 1))
       messageCardStore.setSelection(newSelections)
@@ -107,7 +113,7 @@ onMounted(() => {
       v-for="(selection, index) in markingSelections"
       :key="index"
       :cursor="selection.color ? 'pointer' : 'text'"
-      :style="{ backgroundColor: `${selection.color}aa` || undefined }"
+      :style="{ backgroundColor: selection.color ? `${selection.color}aa` : undefined }"
       :select="selection.color ? 'none' : 'auto'"
       :rounded="selection.color ? 'md' : 'none'"
       :px="selection.color ? '1' : '0'"

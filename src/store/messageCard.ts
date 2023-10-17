@@ -10,16 +10,24 @@ enum MarkType {
 
 const markTypeColorMap = new Map<MarkType, string>([
   [MarkType.Subtitle, '#60a5fa'],
-  [MarkType.Title, '#ef4444'],
-  [MarkType.Episode, '#4ade80'],
+  [MarkType.Title, '#fb7185'],
+  [MarkType.Episode, '#a8a29e'],
 ])
+
+function getMarkTypeFromColor(color: string): MarkType | null {
+  for (const [key, value] of markTypeColorMap) {
+    if (value === color)
+      return key
+  }
+  return null
+}
 
 const useMessageCardStore = defineStore('messageCard', () => {
   const markingCardId: Ref<number | null> = ref(null)
   const markingType: Ref<MarkType | null> = ref(null)
   const markingColor: Ref<string | null> = ref(null)
   const markedType: MarkType[] = reactive([])
-  const markingSelections: Ref<{ text: string; color: string | null }[]> = ref([])
+  const markingSelections: Ref<{ text: string; color: string | null; type: MarkType | null }[]> = ref([])
 
   function setMarkingCardId(id: number) {
     markingCardId.value = id
@@ -30,39 +38,41 @@ const useMessageCardStore = defineStore('messageCard', () => {
     markingColor.value = color
   }
 
-  function setSelection(selection: { text: string; color: string | null }[]) {
+  function setSelection(selection: { text: string; color: string | null; type: MarkType | null }[]) {
     markingSelections.value = selection
-    markedType.push(markingType.value as MarkType)
+    if (selection.length === 1 && selection[0].color === null)
+      markedType.splice(0, markedType.length)
+    else
+      markedType.push(markingType.value as MarkType)
     setMarking(null, null)
   }
 
   function removeSelection(text: string) {
     const index = markingSelections.value.findIndex(selection => selection.text === text)
-    const color = markingSelections.value[index].color
+    const type = markingSelections.value[index].type
     markingSelections.value[index].color = null
-    let type: MarkType | null = null
-    for (const [key, value] of markTypeColorMap) {
-      if (value === color) {
-        type = key
-        break
-      }
-    }
+
     if (type)
       markedType.splice(markedType.indexOf(type), 1)
-    const newMarkingSelections: { text: string; color: string | null }[] = []
-    let tempText = ''
+    const newMarkingSelections: { text: string; color: string | null; type: MarkType | null }[] = []
+    let tempText: string | undefined
     for (const selection of markingSelections.value) {
       if (selection.color !== null) {
-        if (tempText !== '') {
-          newMarkingSelections.push({ text: tempText, color: null })
-          tempText = ''
+        if (tempText) {
+          newMarkingSelections.push({ text: tempText, color: null, type: null })
+          tempText = undefined
         }
         newMarkingSelections.push(selection)
       }
-      else { tempText += selection.text }
+      else {
+        if (tempText)
+          tempText += selection.text
+        else
+          tempText = selection.text
+      }
     }
-    if (tempText !== '')
-      newMarkingSelections.push({ text: tempText, color: null })
+    if (tempText)
+      newMarkingSelections.push({ text: tempText, color: null, type: null })
     markingSelections.value = newMarkingSelections
   }
 
@@ -71,6 +81,7 @@ const useMessageCardStore = defineStore('messageCard', () => {
     markingType.value = null
     markingColor.value = null
     markingSelections.value = []
+    markedType.splice(0, markedType.length)
   }
 
   return {
@@ -88,4 +99,4 @@ const useMessageCardStore = defineStore('messageCard', () => {
 })
 
 export default useMessageCardStore
-export { MarkType, markTypeColorMap }
+export { MarkType, markTypeColorMap, getMarkTypeFromColor }

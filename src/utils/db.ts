@@ -5,9 +5,10 @@ enum StoreNames {
   FAVOURITE_CHANNELS = 'favourite-channels',
   MEDIA = 'media',
   TA_INDEX = 'ta-index',
+  MARK_INDEX = 'mark-index',
 }
 
-const db = await openDB('tadb', 6, {
+const db = await openDB('tadb', 7, {
   upgrade(db) {
     for (const storeName of Object.values(StoreNames)) {
       if (!db.objectStoreNames.contains(storeName))
