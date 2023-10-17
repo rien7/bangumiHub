@@ -1,16 +1,16 @@
 <script setup lang='ts'>
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
-import { n64to10 } from '@/utils/number'
+import { decode } from '@/utils/number'
 import type Message from '@/models/Message'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
 
 const route = useRoute()
 
-const ids = route.params.id.toString().split('+')
-const channelId = n64to10(ids[0])
-const messageId = n64to10(ids[1])
+const ids = route.params.id.toString().split(/[xyzXYZ]/)
+const channelId = decode(ids[0])
+const messageId = decode(ids[1])
 
 const message = ref<Message>()
 const media = ref<Media>()

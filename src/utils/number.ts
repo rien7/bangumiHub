@@ -1,5 +1,5 @@
-function n10to64(number: number) {
-  const chars = '0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ-~'.split('')
+function encode(number: number) {
+  const chars = '0123456789abcdefghigklmnopqrstuvwABCDEFGHIGKLMNOPQRSTUVW'.split('')
   const radix = chars.length
   let qutient = +number
   const arr: string[] = []
@@ -12,8 +12,8 @@ function n10to64(number: number) {
   return arr.join('')
 }
 
-function n64to10(number: string) {
-  const chars = '0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ-~'
+function decode(number: string) {
+  const chars = '0123456789abcdefghigklmnopqrstuvwABCDEFGHIGKLMNOPQRSTUVW'
   const radix = chars.length
   const arr = number.split('')
   let qutient = 0
@@ -26,4 +26,4 @@ function n64to10(number: string) {
   return qutient
 }
 
-export { n10to64, n64to10 }
+export { encode, decode }

@@ -7,7 +7,7 @@ import MarkTool from './markTools/MarkTool.vue'
 import SelectText from './markTools/SelectText.vue'
 import type Message from '@/models/Message'
 import useMessageCardStore from '@/store/messageCard'
-import { n10to64 } from '@/utils/number'
+import { encode } from '@/utils/number'
 
 const props = defineProps<{
   message: Message
@@ -38,10 +38,12 @@ function imgClick() {
   const channelIdString = props.channelId.toString()
   const msgIdString = props.message.id!.toString()
 
-  const channelIdEncode = n10to64(Number.parseInt(channelIdString))
-  const msgIdEncode = n10to64(Number.parseInt(msgIdString))
+  const channelIdEncode = encode(Number.parseInt(channelIdString))
+  const msgIdEncode = encode(Number.parseInt(msgIdString))
 
-  router.push(`/video/${channelIdEncode}+${msgIdEncode}`)
+  const spliter = 'xyzXYZ'.split('')[Math.floor(props.message.id % 6)]
+
+  router.push(`/video/${channelIdEncode}${spliter}${msgIdEncode}`)
 }
 
 function btnClick() {
