@@ -19,11 +19,17 @@ class Message {
         ...media,
         id: media.id.toString(),
         accessHash: media.accessHash.toString(),
+        size: media.size.toJSNumber(),
       }, media.id.toString())
       this.mediaId = media.id
     }
 
     this.channelId = (data.peerId as Api.PeerChannel).channelId
+    db.put(StoreNames.TA_INDEX, {
+      ...this,
+      mediaId: this.mediaId?.toString(),
+      channelId: this.channelId.toString(),
+    }, `${this.channelId.toString()}+${this.id}`)
   }
 }
 

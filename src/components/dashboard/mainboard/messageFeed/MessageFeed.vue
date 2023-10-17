@@ -5,13 +5,10 @@ import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
 import type Message from '@/models/Message'
-import db, { StoreNames } from '@/utils/db'
-import type Channel from '@/models/Channel'
 import useGlobalStore from '@/store/global'
 
 let lastMessageId = 0
 
-const curerntChannel = ref<Channel>()
 const messages = ref<Message[]>([])
 const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
@@ -19,22 +16,8 @@ const updating = ref(false)
 const globalStore = useGlobalStore()
 const { acviteChannel, messageQuery, searchChannel } = storeToRefs(globalStore)
 
-watch([acviteChannel, messageQuery, searchChannel], () => {
-  if (messageQuery.value.length === 0) {
-    lastMessageId = 0
-    messages.value = []
-    getMessages()
-  }
-  else {
-    lastMessageId = 0
-    messages.value = []
-    searchMessages()
-  }
-})
-
-window.addEventListener('message', async (event) => {
-  if (event.data.type === 'selecting-channel')
-    await init()
+watch([acviteChannel, messageQuery, searchChannel], async () => {
+  await init()
 })
 
 async function onScroll() {
@@ -48,17 +31,16 @@ async function onScroll() {
 }
 
 async function init() {
-  const selectingChannel = await db.get(StoreNames.GENERAL_SETTINGS, 'selecting-channel') as string
-  if (!selectingChannel)
-    return
-  if (selectingChannel !== curerntChannel.value?.id.toString()) {
+  if (messageQuery.value.length === 0) {
     lastMessageId = 0
     messages.value = []
+    getMessages()
   }
-  const _channel = await db.get(StoreNames.FAVOURITE_CHANNELS, selectingChannel) as string
-  const channel = JSON.parse(_channel) as Channel
-  curerntChannel.value = channel
-  await getMessages()
+  else {
+    lastMessageId = 0
+    messages.value = []
+    searchMessages()
+  }
 }
 
 async function getMessages() {
@@ -101,7 +83,7 @@ onMounted(async () => {
     @scroll="onScroll"
   >
     <div v-for="message in messages" :key="message.id">
-      <MessageCard :message="message" />
+      <MessageCard :message="message" :channel-id="searchChannel?.id || acviteChannel!.id" />
     </div>
   </div>
 </template>

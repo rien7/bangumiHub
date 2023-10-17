@@ -1,14 +1,17 @@
 <script setup lang='ts'>
 import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 import ActionBtn from './ActionBtn.vue'
 import MarkTool from './markTools/MarkTool.vue'
 import SelectText from './markTools/SelectText.vue'
 import type Message from '@/models/Message'
 import useMessageCardStore from '@/store/messageCard'
+import { n10to64 } from '@/utils/number'
 
 const props = defineProps<{
   message: Message
+  channelId: bigInt.BigInteger
 }>()
 
 const messageCardStore = useMessageCardStore()
@@ -17,6 +20,8 @@ const { markingColor } = storeToRefs(messageCardStore)
 const hoverImg = ref(false)
 const markingTitleMeta = ref(false)
 const delay300 = ref(false)
+
+const router = useRouter()
 
 watch([markingTitleMeta], () => {
   if (markingTitleMeta.value) {
@@ -29,7 +34,17 @@ watch([markingTitleMeta], () => {
   }
 })
 
-function click() {
+function imgClick() {
+  const channelIdString = props.channelId.toString()
+  const msgIdString = props.message.id!.toString()
+
+  const channelIdEncode = n10to64(Number.parseInt(channelIdString))
+  const msgIdEncode = n10to64(Number.parseInt(msgIdString))
+
+  router.push(`/video/${channelIdEncode}+${msgIdEncode}`)
+}
+
+function btnClick() {
   markingTitleMeta.value = !markingTitleMeta.value
   if (!markingTitleMeta.value)
     messageCardStore.clear()
@@ -41,9 +56,10 @@ function click() {
 <template>
   <div class="message-card" relative h-67 w-80 flex flex-col overflow-hidden rounded-md shadow="gray-200 dark:gray-700">
     <div
-      relative h-45 w-full overflow-hidden
+      relative h-45 w-full cursor-pointer overflow-hidden
       @mouseenter="hoverImg = true"
       @mouseleave="hoverImg = false"
+      @click="imgClick"
     >
       <img :src="`/img/m${props.message?.mediaId}`" class="h-full w-full" absolute top-0>
       <div absolute right-0 top-0>
@@ -51,7 +67,7 @@ function click() {
           icon="material-symbols:format-image-left-rounded"
           :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
           transition
-          @click="click"
+          @click="btnClick"
         />
       </div>
     </div>
@@ -105,3 +121,4 @@ div[rounded-md] {
   transition: transform 300ms;
 }
 </style>
+@/utils/number
