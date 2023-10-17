@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@types/color-thief-node':
-    specifier: ^1.0.2
-    version: 1.0.2
   '@unocss/reset':
     specifier: ^0.56.5
     version: 0.56.5
@@ -49,6 +46,9 @@ devDependencies:
   '@iconify/vue':
     specifier: ^4.1.1
     version: 4.1.1(vue@3.3.4)
+  '@types/color-thief-node':
+    specifier: ^1.0.2
+    version: 1.0.2
   '@unocss/eslint-config':
     specifier: ^0.56.5
     version: 0.56.5(eslint@8.51.0)(typescript@5.0.2)
@@ -1848,7 +1848,7 @@ packages:
 
   /@types/color-thief-node@1.0.2:
     resolution: {integrity: sha512-LaeL8NFrVUyc4wpppaEMYUMMylbwMbCqhCvj6+q47ZTFazxYW5KsjUQRBHf6TKqYe4dQq/2HTulqiI7VUEF9GA==}
-    dev: false
+    dev: true
 
   /@types/estree@0.0.39:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
