@@ -24,6 +24,11 @@ const requestStates = new Map<string, RequestStates>()
 const TIMEOUT = 10_000
 
 async function imageHandler(url: string, e: FetchEvent): Promise<Response> {
+  const cache = await caches.open('img-cache')
+  const cachedResponse = await cache.match(url)
+  if (cachedResponse)
+    return cachedResponse
+
   const data = await postMsg(e, {
     type: 'img-request',
     url,
@@ -37,6 +42,9 @@ async function imageHandler(url: string, e: FetchEvent): Promise<Response> {
   }
 
   const { imgData } = data
+
+  // add to cache
+  await cache.put(url, new Response(imgData))
 
   return new Response(imgData, {
     headers: new Headers({
