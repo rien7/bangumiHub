@@ -62,13 +62,13 @@ async function init() {
 }
 
 async function getMessages() {
-  if (!acviteChannel.value || !acviteChannel.value.accessHash)
+  if ((!acviteChannel.value || !acviteChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash))
     return
   updating.value = true
   const newMessages = await getChannelMessages(
-    searchChannel.value?.id || acviteChannel.value?.id,
+    searchChannel.value?.id || acviteChannel.value!.id,
     lastMessageId,
-    searchChannel.value?.accessHash || acviteChannel.value.accessHash,
+    searchChannel.value?.accessHash || acviteChannel.value!.accessHash,
   )
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
