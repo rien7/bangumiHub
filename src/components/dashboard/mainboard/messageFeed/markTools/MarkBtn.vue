@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { ref, watch } from 'vue'
-import type { MarkType } from '@/store/messageCard'
-import useMessageCardStore, { markTypeColorMap } from '@/store/messageCard'
+import useMessageCardStore, { MarkType, markTypeColorMap } from '@/store/messageCard'
 
 const props = defineProps<{
   type: MarkType
@@ -45,7 +44,8 @@ function click() {
     <div
       mr-2 h-3 w-3 rounded-full
       :style="{
-        backgroundColor: !banned ? color : `${color}22`,
+        backgroundColor: props.type !== MarkType.Subtitle && !banned ? color : `${color}22`,
+        border: props.type === MarkType.Subtitle && !banned ? `2px solid ${color}` : `2px solid ${color}22`,
       }"
     />
     <span select-none text-xs>{{ props.type }}</span>

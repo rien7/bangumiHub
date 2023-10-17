@@ -12,6 +12,7 @@ import { encode } from '@/utils/number'
 import MarkData, { LangEnum } from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
+import { readableDate } from '@/utils/date'
 
 const props = defineProps<{
   message: Message
@@ -24,6 +25,8 @@ const { markingColor, markingType, markingCardId, markingSelections } = storeToR
 const hoverImg = ref(false)
 const markingTitleMeta = ref(false)
 const delay300 = ref(false)
+const mounted = ref(false)
+const showMarkData = ref(true)
 
 const markData: Ref<MarkData | undefined> = ref(undefined)
 
@@ -131,11 +134,11 @@ async function markComplate() {
   messageCardStore.clear()
 }
 
-onMounted(() => {
-  db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`).then((data) => {
-    if (data)
-      markData.value = data as MarkData
-  })
+onMounted(async () => {
+  const data = await db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
+  if (data)
+    markData.value = data as MarkData
+  mounted.value = true
 })
 </script>
 
@@ -150,43 +153,61 @@ onMounted(() => {
       <img :src="`/img/m${props.message?.mediaId}`" class="h-full w-full" absolute top-0>
       <div absolute right-1 top-1>
         <ActionBtn
-          icon="material-symbols:format-image-left-rounded"
+          v-if="!markData"
+          :icons="['material-symbols:format-image-left-rounded']"
           :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
           transition
           @click="btnClick"
         />
+        <div v-else flex>
+          <ActionBtn
+            :icons="['material-symbols:format-image-left-rounded', 'material-symbols:format-align-left-rounded']"
+            :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
+            :highlight-index="showMarkData ? 0 : 1"
+            transition
+            @click="showMarkData = !showMarkData"
+          />
+        </div>
       </div>
     </div>
     <div
       bg="gray-100 dark:gray-800"
       :h="markingTitleMeta ? '46' : '22'"
-      absolute bottom-0
-      w-full px-4 py-2 transition-all duration-300
+      absolute bottom-0 w-full px-4 py-2 transition-all duration-300
     >
       <div
-        v-if="!markData"
-        :line-clamp="markingTitleMeta ? 7 : 3"
-        :selection="markingTitleMeta"
+        v-if="mounted"
+        h-full w-170 flex justify-between gap-20 transition-all duration-800
+        :class="(showMarkData && markData) ? 'translate-x-0' : '-translate-x-98'"
       >
-        <span v-if="!delay300">{{ props.message!.message }}</span>
-        <SelectText v-else :text="props.message!.message" :color="markingColor" :type="markingType" />
-      </div>
-      <div v-else h-full flex flex-col justify-between>
-        <div flex items-center justify-between>
-          <span text-lg font-500>{{ markData.title }}</span>
-          <span font-mono>{{ markData.episode }}</span>
-        </div>
-        <div flex justify-between>
-          <span text-xs>{{ markData.subTitle }}</span>
-          <div text="xs gray-500 dark:gray-400" flex gap-1>
-            <span font-mono>{{ markData.quality }}</span>
-            <template v-for="(value, key) in markData.lang" :key="key">
-              <div v-if="value" inline bg="gray-500 dark:gray-400" rounded color="gray-100 dark:gray-800" px-1>
-                {{ key }}
+        <div h-full w-72>
+          <div v-if="markData" h-full w-72 flex flex-col justify-between>
+            <div flex items-center justify-between>
+              <span text-lg font-500>{{ markData.title }}</span>
+              <span font-mono>{{ markData.episode }}</span>
+            </div>
+            <div flex justify-between text="xs gray-500 dark:gray-400">
+              <div flex gap-1>
+                <span>{{ markData.subTitle }}</span>
+                <template v-for="(value, key) in markData.lang" :key="key">
+                  <div v-if="value" inline bg="gray-500 dark:gray-400" rounded color="gray-100 dark:gray-800" px-1>
+                    {{ key }}
+                  </div>
+                </template>
+                <span font-mono>{{ markData.quality }}</span>
               </div>
-            </template>
-            <span>12:34</span>
+              <span>{{ readableDate(props.message.date) }}</span>
+            </div>
           </div>
+        </div>
+
+        <div
+          :line-clamp="markingTitleMeta ? 7 : 3"
+          :selection="markingTitleMeta"
+          h-full w-72
+        >
+          <span v-if="!delay300">{{ props.message!.message }}</span>
+          <SelectText v-else :text="props.message!.message" :color="markingColor" :type="markingType" />
         </div>
       </div>
     </div>

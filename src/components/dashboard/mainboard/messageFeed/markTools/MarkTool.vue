@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { ref, watch } from 'vue'
 import MarkBtn from './MarkBtn.vue'
-import useMessageCardStore, { MarkType, markTypeColorMap } from '@/store/messageCard'
+import useMessageCardStore, { MarkType } from '@/store/messageCard'
 
 const emit = defineEmits(['click'])
 const banned = ref(true)
@@ -16,7 +16,7 @@ const messageCardStore = useMessageCardStore()
 const { markedType } = messageCardStore
 
 watch([markedType], () => {
-  banned.value = markedType.length !== markTypeColorMap.size
+  banned.value = !(markedType.includes(MarkType.Title) && markedType.includes(MarkType.Episode))
 })
 </script>
 

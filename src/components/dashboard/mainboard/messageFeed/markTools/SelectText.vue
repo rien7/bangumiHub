@@ -68,8 +68,14 @@ function onMouseUpHandler() {
   const anchorNodeOffset = offsets.get(anchorNode.textContent) || 0
   const focusNodeOffset = offsets.get(focusNode.textContent) || 0
 
-  const selectionStart = forward ? anchorOffset + anchorNodeOffset : focusOffset + focusNodeOffset
-  const selectionEnd = selectionStart + selection.length
+  let selectionStart = forward ? anchorOffset + anchorNodeOffset : focusOffset + focusNodeOffset
+  let selectionEnd = selectionStart + selection.length
+
+  // remove blank space
+  while (props.text[selectionStart] === ' ')
+    selectionStart++
+  while (props.text[selectionEnd - 1] === ' ')
+    selectionEnd--
 
   const selections = markingSelections.value
   let count = 0
