@@ -14,12 +14,6 @@ enum SearchType {
   Channels,
 }
 
-enum SearchState {
-  Idle,
-  Searching,
-  Done,
-}
-
 const globalStore = useGlobalStore()
 const { acviteChannel } = storeToRefs(globalStore)
 
@@ -34,7 +28,6 @@ watch([acviteChannel], () => {
   currentSearchType.value = SearchType.Messages
 })
 
-const searching = ref(SearchState.Idle)
 const searchResult = ref<Channel | null>(null)
 
 function switchMessageChannel() {
@@ -46,12 +39,15 @@ function switchMessageChannel() {
 }
 
 async function handleInputSubmit(_e: KeyboardEvent) {
-  // if (e.key !== 'Enter')
-  //   return
+  if (!inputField.value!.value) {
+    globalStore.setMessageQuery('')
+    globalStore.setSearchChannel(null)
+  }
+  if (_e.key !== 'Enter')
+    return
   if (currentSearchType.value === SearchType.Channels) {
-    searching.value = SearchState.Searching
     searchResult.value = await getChannel(inputField.value!.value)
-    searching.value = SearchState.Done
+    globalStore.setSearchChannel(searchResult.value)
   }
   else {
     const query = inputField.value!.value
@@ -66,7 +62,7 @@ async function handleInputSubmit(_e: KeyboardEvent) {
   <div mt-2 w-full flex flex-col items-center>
     <div z-1 h-50px w-full flex items-center justify-center>
       <div
-        :rounded="searching !== SearchState.Idle ? 't-25px' : 'full'"
+        rounded="full"
         border="1 gray-200 dark:gray-700"
         shadow="~ gray-200 dark:gray-700"
         relative h-12 max-w-500px w-full flex items-center overflow-hidden px-1
@@ -91,10 +87,8 @@ async function handleInputSubmit(_e: KeyboardEvent) {
         </div>
       </div>
     </div>
-    <div v-if="searching !== SearchState.Idle" translate-y="-1px" border="1 gray-200 dark:gray-700" max-w-500px w-full rounded-b-md p-2>
-      <ChannelSkeleton v-if="searching === SearchState.Searching" />
-      <ChannelResult v-else :channel="searchResult!" />
-    </div>
+    <ChannelSkeleton v-if="!searchResult && currentSearchType === SearchType.Channels && inputField?.value" />
+    <ChannelResult v-else-if="searchResult && currentSearchType === SearchType.Channels && inputField?.value" :channel="searchResult!" />
   </div>
 </template>
 

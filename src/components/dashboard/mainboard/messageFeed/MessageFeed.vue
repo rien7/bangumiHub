@@ -17,9 +17,9 @@ const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
 const globalStore = useGlobalStore()
-const { acviteChannel, messageQuery } = storeToRefs(globalStore)
+const { acviteChannel, messageQuery, searchChannel } = storeToRefs(globalStore)
 
-watch([acviteChannel, messageQuery], () => {
+watch([acviteChannel, messageQuery, searchChannel], () => {
   if (messageQuery.value.length === 0) {
     lastMessageId = 0
     messages.value = []
@@ -65,7 +65,11 @@ async function getMessages() {
   if (!acviteChannel.value || !acviteChannel.value.accessHash)
     return
   updating.value = true
-  const newMessages = await getChannelMessages(acviteChannel.value?.id, lastMessageId, acviteChannel.value.accessHash)
+  const newMessages = await getChannelMessages(
+    searchChannel.value?.id || acviteChannel.value?.id,
+    lastMessageId,
+    searchChannel.value?.accessHash || acviteChannel.value.accessHash,
+  )
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
@@ -75,7 +79,12 @@ async function searchMessages() {
   if (!acviteChannel.value || !acviteChannel.value.accessHash || !messageQuery.value)
     return
   updating.value = true
-  const newMessages = await searchMsgTelegram(acviteChannel.value?.id, messageQuery.value, lastMessageId, acviteChannel.value.accessHash)
+  const newMessages = await searchMsgTelegram(
+    acviteChannel.value.id,
+    messageQuery.value,
+    lastMessageId,
+    acviteChannel.value.accessHash,
+  )
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false

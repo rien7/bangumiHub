@@ -30,22 +30,22 @@ function handleBtnClick() {
 <template>
   <div w-full flex flex-col px-8 py-2>
     <div flex>
-      <div h-16 w-16 rounded-full>
+      <div h-16 w-16>
         <img :src="`/img/c${channel.chatPhotoId}`" class="h-full w-full rounded-full">
       </div>
       <div ml-4 h-16 flex flex-col justify-center>
-        <div text-lg font-600>
+        <div flex items-center justify-center text-lg font-600>
           {{ searchResult?.title }}
+          <div
+            h-8 w-8 cursor-pointer rounded-full p-1 transition-all
+            @click="handleBtnClick"
+          >
+            <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="h-full w-full rounded-full" />
+          </div>
         </div>
         <div mt-2 text-xs font-mono>
           @{{ searchResult?.username }}
         </div>
-      </div>
-      <div
-        ml-auto h-8 w-8 cursor-pointer rounded-full p-1 transition-all
-        @click="handleBtnClick"
-      >
-        <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="h-full w-full rounded-full" />
       </div>
     </div>
     <div mt-4 flex flex-col>
