@@ -2,7 +2,7 @@
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { getShadeColor } from './getMainColor'
+import { getShadeColor, isDark } from './getMainColor'
 import useGlobalStore from '@/store/global'
 import useSidebarStore from '@/store/sidebar'
 
@@ -26,15 +26,17 @@ const sidebarColor = computed(() => {
   return color?.color || ''
 })
 const sidebarOutlineColor = computed(() => {
+  const diff = 128 - isDark(sidebarColor.value)
   if (!sidebarColor.value)
     return ''
-  const shadeColor = getShadeColor(sidebarColor.value, -20)
+  const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.4 : diff * 2.5)
   return shadeColor
 })
 const sidebarFontColor = computed(() => {
+  const diff = 128 - isDark(sidebarColor.value)
   if (!sidebarColor.value)
     return ''
-  const shadeColor = getShadeColor(sidebarColor.value, -60)
+  const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.8 : diff * 4)
   return shadeColor
 })
 

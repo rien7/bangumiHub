@@ -14,6 +14,15 @@ function getMainColor(imageDom: HTMLImageElement) {
   return rgbToHex(color[0], color[1], color[2])
 }
 
+function isDark(color: string) {
+  const R = Number.parseInt(color.substring(1, 3), 16)
+  const G = Number.parseInt(color.substring(3, 5), 16)
+  const B = Number.parseInt(color.substring(5, 7), 16)
+  // const luma = 0.2126 * R + 0.7152 * G + 0.0722 * B
+  const luma = 0.4 * R + 0.4 * G + 0.2 * B
+  return luma
+}
+
 function getShadeColor(color: string, percent: number) {
   let R = Number.parseInt(color.substring(1, 3), 16)
   let G = Number.parseInt(color.substring(3, 5), 16)
@@ -39,4 +48,4 @@ function getShadeColor(color: string, percent: number) {
 }
 
 export default getMainColor
-export { getShadeColor }
+export { getShadeColor, isDark }
