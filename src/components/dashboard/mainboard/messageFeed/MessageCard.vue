@@ -78,6 +78,7 @@ async function favouriteClick() {
     markData.value!.favourite = encode(Math.random() * 999999999)
     const url = await getImgUrlByName(markData.value!.title)
     db.put(StoreNames.FAVOURITE_MARKS, {
+      id: markData.value!.favourite,
       ids: [`${props.message.channelId.toString()}+${props.message.id.toString()}`],
       mark: markData.value!.mark,
       title: markData.value!.title,

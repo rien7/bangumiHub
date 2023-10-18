@@ -14,7 +14,7 @@ const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
 const globalStore = useGlobalStore()
-const { acviteChannel, messageQuery, searchChannel } = storeToRefs(globalStore)
+const { activeChannel: acviteChannel, messageQuery, searchChannel } = storeToRefs(globalStore)
 
 watch([acviteChannel, messageQuery, searchChannel], async () => {
   await init()

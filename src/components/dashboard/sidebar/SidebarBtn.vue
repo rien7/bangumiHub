@@ -12,6 +12,7 @@ const props = defineProps<{
   expandable: boolean
   clickable: boolean
   image?: string
+  type?: 'channel' | 'mark'
 }>()
 const expand = inject<Ref<boolean>>('expand')!
 const hover = ref(false)
@@ -50,8 +51,12 @@ watch([expand, hover], () => {
 })
 
 async function handleBtnClick() {
-  if (props.clickable && props.id)
-    globalStore.setActiveChannelById(props.id)
+  if (props.clickable && props.id && props.type) {
+    if (props.type === 'channel')
+      globalStore.setActiveChannelById(props.id)
+    else
+      globalStore.setActiveMarkById(props.id)
+  }
 }
 </script>
 
@@ -65,7 +70,8 @@ async function handleBtnClick() {
       backgroundColor: popup ? `${sidebarColor} !important` : '',
       outlineColor: popup ? `${sidebarOutlineColor} !important` : '',
     }"
-    h-50px rounded-e-full transition-all
+
+    z-50 h-50px rounded-e-full transition-all
     @mouseenter="hover = true"
     @mouseleave="hover = false"
   >

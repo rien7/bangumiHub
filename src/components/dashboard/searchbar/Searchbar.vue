@@ -2,10 +2,10 @@
 import { ref, watch } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import { storeToRefs } from 'pinia'
+import ChannelHeader from '../mainboard/headers/ChannelHeader.vue'
+import MarkHeader from '../mainboard/headers/MarkHeader.vue'
 import Indicator from './Indicator.vue'
-import ChannelSkeleton from './ChannelSkeleton.vue'
 import { getChannel } from './searchChannel'
-import ChannelResult from './ChannelResult.vue'
 import type Channel from '@/models/Channel'
 import useGlobalStore from '@/store/global'
 
@@ -15,13 +15,13 @@ enum SearchType {
 }
 
 const globalStore = useGlobalStore()
-const { acviteChannel } = storeToRefs(globalStore)
+const { activeChannel, searchChannel, activeMark } = storeToRefs(globalStore)
 
 const inputField = ref<HTMLInputElement | null>(null)
 const currentSearchType = ref(SearchType.Channels)
 
-watch([acviteChannel], () => {
-  if (!acviteChannel.value)
+watch([activeChannel], () => {
+  if (!activeChannel.value)
     return
   inputField.value!.value = ''
   globalStore.setMessageQuery('')
@@ -31,7 +31,7 @@ watch([acviteChannel], () => {
 const searchResult = ref<Channel | null>(null)
 
 function switchMessageChannel() {
-  if (!acviteChannel.value)
+  if (!activeChannel.value)
     return
   inputField.value!.value = ''
   globalStore.setMessageQuery('')
@@ -51,7 +51,7 @@ async function handleInputSubmit(_e: KeyboardEvent) {
   }
   else {
     const query = inputField.value!.value
-    if (!acviteChannel.value)
+    if (!activeChannel.value)
       return
     globalStore.setMessageQuery(query)
   }
@@ -59,12 +59,15 @@ async function handleInputSubmit(_e: KeyboardEvent) {
 </script>
 
 <template>
-  <div mt-2 w-full flex flex-col items-center>
-    <div z-1 h-50px w-full flex items-center justify-center>
+  <div
+    w-full flex flex-col items-center py-2
+  >
+    <div z-10 h-50px w-full flex items-center justify-center>
       <div
         rounded="full"
         border="1 gray-200 dark:gray-700"
         shadow="~ gray-200 dark:gray-700"
+        bg="white dark:black"
         relative h-12 max-w-500px w-full flex items-center overflow-hidden px-1
       >
         <Transition name="from-left">
@@ -87,8 +90,10 @@ async function handleInputSubmit(_e: KeyboardEvent) {
         </div>
       </div>
     </div>
-    <ChannelSkeleton v-if="!searchResult && currentSearchType === SearchType.Channels && inputField?.value" />
-    <ChannelResult v-else-if="searchResult && currentSearchType === SearchType.Channels && inputField?.value" :channel="searchResult!" />
+    <!-- <ChannelSkeleton v-if="!searchResult && currentSearchType === SearchType.Channels && inputField?.value" />
+    <ChannelResult v-else-if="searchResult && currentSearchType === SearchType.Channels && inputField?.value" :channel="searchResult!" /> -->
+    <ChannelHeader v-if="searchChannel && currentSearchType === SearchType.Channels && inputField?.value" />
+    <MarkHeader v-if="activeMark" />
   </div>
 </template>
 

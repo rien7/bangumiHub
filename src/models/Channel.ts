@@ -9,6 +9,7 @@ class Channel {
   username?: string
   about?: string
   chatPhotoId?: bigInt.BigInteger
+  favorite: boolean
 
   constructor(data: Api.messages.ChatFull) {
     const channel = data.chats[0] as Api.Channel
@@ -17,6 +18,7 @@ class Channel {
     this.accessHash = channel.accessHash
     this.username = channel.username
     this.about = data.fullChat.about
+    this.favorite = false
     if (data.fullChat.chatPhoto) {
       const photo = new Photo(data.fullChat.chatPhoto)
       this.chatPhotoId = photo.id

@@ -14,9 +14,13 @@ class MarkData {
   }
 
   quality: string
-  text: string
+  text?: string
   mark: string
   favourite: string | undefined
+
+  id: string
+  ids: string[]
+  image?: string
 
   constructor() {
     this.subTitle = ''
@@ -27,6 +31,8 @@ class MarkData {
     this.text = ''
     this.mark = ''
     this.favourite = undefined
+    this.ids = []
+    this.id = ''
   }
 }
 

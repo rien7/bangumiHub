@@ -30,14 +30,14 @@ window.addEventListener('message', async (event) => {
 async function updateChannels() {
   const favouriteChannelStrings = await db.getAll(StoreNames.FAVOURITE_CHANNELS)
   favouriteChannels.value = favouriteChannelStrings.map((_channel) => {
-    const channel = JSON.parse(_channel) as Channel
+    const channel = _channel as Channel
     return {
       id: channel.id,
       name: channel.title,
       image: `/img/c${channel.chatPhotoId}`,
     }
   })
-  if (!globalStore.acviteChannel)
+  if (!globalStore.activeChannel)
     globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }
 
@@ -48,7 +48,7 @@ async function updateMarks() {
       id: mark.id,
       title: mark.title,
       subTitle: mark.subTitle,
-      image: `https://proxy.zrien7.workers.dev/bgm/${mark.image}`,
+      image: mark.image ? `https://proxy.zrien7.workers.dev/bgm/${mark.image}` : undefined,
     }
   })
 }
@@ -56,6 +56,7 @@ async function updateMarks() {
 
 <template>
   <div
+    bg="white dark:black"
     :w="expand ? '250px' : '50px'"
     border-r="1px solid gray-200 dark:gray-700"
     shadow="lg gray-200 dark:gray-700"
@@ -64,16 +65,20 @@ async function updateMarks() {
     <SidebarGroup title="Bangumi" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="mark in favouriteMarks"
-        :id="mark.id" :key="mark.id" :text="`${mark.subTitle ? `${mark.subTitle}-` : ''}${mark.title}`" :image="mark.image" :clickable="true" :expandable="true"
+        :id="mark.id"
+        :key="mark.id" type="mark" :text="`${mark.subTitle ? `${mark.subTitle}-` : ''}${mark.title}`" :image="mark.image" :clickable="true" :expandable="true"
       >
         <ImageIcon v-if="mark.image" :src="mark.image" />
-        <SvgIcon v-else icon="line-md:bookmark" />
+        <div v-else h-8 w-8>
+          <span leading-8>{{ mark.title[0] }}</span>
+        </div>
       </SidebarBtn>
     </SidebarGroup>
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"
-        :id="channel.id.toString()" :key="channel.id.toString()" :text="channel.name" :clickable="true" :image="channel.image" :expandable="true"
+        :id="channel.id.toString()"
+        :key="channel.id.toString()" type="channel" :text="channel.name" :clickable="true" :image="channel.image" :expandable="true"
       >
         <ImageIcon :src="channel.image" />
       </SidebarBtn>
