@@ -1,7 +1,7 @@
 function encode(number: number) {
-  const chars = '0123456789abcdefghigklmnopqrstuvwABCDEFGHIGKLMNOPQRSTUVW'.split('')
+  const chars = '0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW'.split('')
   const radix = chars.length
-  let qutient = +number
+  let qutient = number
   const arr: string[] = []
   let mod = 0
   do {
@@ -13,7 +13,7 @@ function encode(number: number) {
 }
 
 function decode(number: string) {
-  const chars = '0123456789abcdefghigklmnopqrstuvwABCDEFGHIGKLMNOPQRSTUVW'
+  const chars = '0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW'.split('')
   const radix = chars.length
   const arr = number.split('')
   let qutient = 0
