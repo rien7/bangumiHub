@@ -39,10 +39,6 @@ function switchMessageChannel() {
 }
 
 async function handleInputSubmit(_e: KeyboardEvent) {
-  if (!inputField.value!.value) {
-    globalStore.setMessageQuery('')
-    globalStore.setSearchChannel(null)
-  }
   if (_e.key !== 'Enter')
     return
   if (currentSearchType.value === SearchType.Channels) {

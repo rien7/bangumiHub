@@ -37,7 +37,7 @@ async function updateChannels() {
       image: `/img/c${channel.chatPhotoId}`,
     }
   })
-  if (!globalStore.activeChannel)
+  if (!globalStore.activeChannel && favouriteChannels.value.length > 0)
     globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }
 

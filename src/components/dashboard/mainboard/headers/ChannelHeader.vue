@@ -16,6 +16,7 @@ function handleBtnClick(favourite: boolean) {
       id: searchChannel.value.id.toString(),
       accessHash: searchChannel.value.accessHash?.toString(),
       chatPhotoId: searchChannel.value.chatPhotoId?.toString(),
+      joined: undefined,
       about: undefined,
     }, searchChannel.value.id.toString())
   }
@@ -30,8 +31,9 @@ function handleBtnClick(favourite: boolean) {
     :title="searchChannel?.title || activeChannel!.title"
     :sub-title="searchChannel?.username || activeChannel!.username"
     :image="`/img/c${searchChannel?.chatPhotoId || activeChannel!.chatPhotoId}`"
-    :about="searchChannel?.about || activeChannel!.about"
+    :about="searchChannel?.about || activeChannel?.about"
     type="channel"
     :favourite-action="handleBtnClick"
+    :joined="searchChannel?.joined"
   />
 </template>

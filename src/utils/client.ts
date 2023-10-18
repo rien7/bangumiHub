@@ -9,7 +9,6 @@ const CLIENT = new TelegramClient(SESSION,
   import.meta.env.VITE_API_HASH || '', {
   connectionRetries: 5,
 })
-
 CLIENT.connect()
 
 export { CLIENT, SESSION_STRING }

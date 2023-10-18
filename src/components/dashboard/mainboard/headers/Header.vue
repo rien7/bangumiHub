@@ -1,6 +1,8 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import type { Ref } from 'vue'
+import { onMounted, onUpdated, ref } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
+import { joinChannel, leaveChannel } from '../../searchbar/searchChannel'
 import db, { StoreNames } from '@/utils/db'
 
 const props = defineProps<{
@@ -10,12 +12,18 @@ const props = defineProps<{
   favouriteAction: (favourite: boolean) => void
   subTitle?: string
   about?: string
+  joined?: boolean
   type: 'channel' | 'mark'
 }>()
 
 const favourite = ref(false)
+let lastId: string | undefined
+const joined: Ref<boolean | undefined> = ref(undefined)
 
-onMounted(() => {
+function init() {
+  if (lastId === props.id)
+    return
+  joined.value = props.joined
   db.get(
     props.type === 'channel' ? StoreNames.FAVOURITE_CHANNELS : StoreNames.FAVOURITE_MARKS,
     props.id,
@@ -23,11 +31,33 @@ onMounted(() => {
     if (res)
       favourite.value = true
   })
+  lastId = props.id
+}
+
+onMounted(() => {
+  init()
+})
+
+onUpdated(() => {
+  init()
 })
 
 function handleBtnClick() {
   props.favouriteAction(favourite.value)
   favourite.value = !favourite.value
+}
+
+function handleJoinClick() {
+  if (props.type === 'channel' && joined.value !== undefined) {
+    if (joined.value) {
+      leaveChannel(props.id)
+      joined.value = false
+    }
+    else {
+      joinChannel(props.id)
+      joined.value = true
+    }
+  }
 }
 </script>
 
@@ -55,6 +85,13 @@ function handleBtnClick() {
             @click="handleBtnClick"
           >
             <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="h-full w-full rounded-full" />
+          </div>
+          <div
+            v-if="joined !== undefined"
+            h-8 w-8 cursor-pointer rounded-full p-1 transition-all
+            @click="handleJoinClick"
+          >
+            <Icon :color="joined ? '#16a34a' : ''" :icon="joined ? 'line-md:confirm' : 'line-md:plus'" class="h-full w-full rounded-full" />
           </div>
         </div>
         <div mt-2 text-xs font-mono>

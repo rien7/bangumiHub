@@ -10,8 +10,9 @@ class Channel {
   about?: string
   chatPhotoId?: bigInt.BigInteger
   favorite: boolean
+  joined?: boolean
 
-  constructor(data: Api.messages.ChatFull) {
+  constructor(data: Api.messages.ChatFull, joined?: boolean) {
     const channel = data.chats[0] as Api.Channel
     this.id = channel.id
     this.title = channel.title
@@ -19,6 +20,7 @@ class Channel {
     this.username = channel.username
     this.about = data.fullChat.about
     this.favorite = false
+    this.joined = joined
     if (data.fullChat.chatPhoto) {
       const photo = new Photo(data.fullChat.chatPhoto)
       this.chatPhotoId = photo.id
