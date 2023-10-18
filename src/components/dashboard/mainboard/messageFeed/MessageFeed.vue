@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { returnBigInt } from 'telegram/Helpers'
 import { getMarkedMessageQuery } from '../marks/utils'
 import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
@@ -39,17 +38,17 @@ async function init() {
   if (activeMark.value) {
     lastMessageId = 0
     messages.value = []
-    getMarkedMessages()
+    await getMarkedMessages()
   }
   else if (messageQuery.value.length === 0) {
     lastMessageId = 0
     messages.value = []
-    getMessages()
+    await getMessages()
   }
   else {
     lastMessageId = 0
     messages.value = []
-    searchMessages()
+    await searchMessages()
   }
 }
 
@@ -91,10 +90,9 @@ async function getMarkedMessages() {
     return
   const { channelId, query } = queryData
   const newMessages = await searchMsgTelegram(
-    returnBigInt(channelId),
+    channelId,
     query,
     lastMessageId,
-    activeChannel.value!.accessHash,
   )
   const _markData = {
     ...activeMark.value,

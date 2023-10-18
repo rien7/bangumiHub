@@ -74,7 +74,7 @@ function handleJoinClick() {
     />
     <div z-5 flex>
       <div h-32 w-32 flex items-center justify-center>
-        <img v-if="props.image" :src="`${props.image}`" class="h-full w-full rounded-full">
+        <img v-if="props.image" :src="`${props.image}`" rounded-md>
         <span v-else text-5xl leading-32>{{ props.title[0] }}</span>
       </div>
       <div ml-4 h-32 flex flex-col justify-center>

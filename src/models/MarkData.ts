@@ -1,3 +1,5 @@
+import { returnBigInt } from 'telegram/Helpers'
+
 enum LangEnum {
   S = 'S',
   T = 'T',
@@ -19,7 +21,7 @@ class MarkData {
   favourite: string | undefined
 
   id: string
-  channelId: string
+  channelId: bigInt.BigInteger
   image?: string
 
   constructor() {
@@ -32,7 +34,7 @@ class MarkData {
     this.mark = ''
     this.favourite = undefined
     this.id = ''
-    this.channelId = ''
+    this.channelId = returnBigInt(0)
   }
 }
 

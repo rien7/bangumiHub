@@ -14,11 +14,15 @@ import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
 import { readableDate } from '@/utils/date'
 import { getImgUrlByName } from '@/components/dashboard/mainboard/marks/utils'
+import useGlobalStore from '@/store/global'
 
 const props = defineProps<{
   message: Message
   channelId: bigInt.BigInteger
 }>()
+
+const globalStore = useGlobalStore()
+const { activeMark } = storeToRefs(globalStore)
 
 const messageCardStore = useMessageCardStore()
 const { markingColor, markingType, markingCardId, markingSelections } = storeToRefs(messageCardStore)
@@ -204,7 +208,7 @@ onMounted(async () => {
       <div absolute bottom-1 right-1 flex>
         <ActionBtn :icons="['icon-park-outline:list-add']" :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition />
         <ActionBtn
-          v-if="markData" :icons="[markData.favourite ? 'line-md:star-filled' : 'line-md:star']"
+          v-if="markData && !activeMark" :icons="[markData.favourite ? 'line-md:star-filled' : 'line-md:star']"
           :highlight-index="markData.favourite ? 0 : undefined"
           :highlight-color="markData.favourite ? ['#fde047', '#facc15', '#eab308'] : undefined"
           :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition

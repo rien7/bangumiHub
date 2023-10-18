@@ -7,38 +7,38 @@ import type MarkData from '@/models/MarkData'
 const useGlobalStore = defineStore('global', () => {
   const activeChannel = ref<Channel>()
   const messageQuery = ref<string>('')
-  const searchChannel = ref<Channel | null>(null)
-  const activeMark = ref<MarkData | null>(null)
+  const searchChannel = ref<Channel | undefined>(undefined)
+  const activeMark = ref<MarkData | undefined>(undefined)
 
   async function setActiveChannelById(channelId: string) {
-    await db.get(StoreNames.FAVOURITE_CHANNELS, channelId).then((_channel) => {
+    searchChannel.value = undefined
+    activeMark.value = undefined
+    db.get(StoreNames.FAVOURITE_CHANNELS, channelId).then((_channel) => {
       const channel = _channel as Channel
       channel.favorite = true
       activeChannel.value = channel
     })
-    searchChannel.value = null
-    activeMark.value = null
   }
 
   async function setActiveMarkById(markId: string) {
-    await db.get(StoreNames.FAVOURITE_MARKS, markId).then((_mark) => {
+    searchChannel.value = undefined
+    db.get(StoreNames.FAVOURITE_MARKS, markId).then((_mark) => {
       const mark = _mark as MarkData
       activeMark.value = mark
     })
-    searchChannel.value = null
   }
 
   function clearActiveMark() {
-    activeMark.value = null
+    activeMark.value = undefined
   }
 
   function setMessageQuery(query: string) {
     messageQuery.value = query
   }
 
-  function setSearchChannel(channel: Channel | null) {
+  function setSearchChannel(channel: Channel | undefined) {
     searchChannel.value = channel
-    activeMark.value = null
+    activeMark.value = undefined
   }
 
   return {
