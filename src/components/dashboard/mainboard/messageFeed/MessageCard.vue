@@ -111,8 +111,10 @@ async function markComplate() {
   ]
   for (const lang of langMap) {
     for (const key in lang) {
-      if (_msg.includes(key))
-        _markData.lang[lang[key]] = true
+      if (_msg.includes(key)) {
+        for (const l of lang[key])
+          _markData.lang[l] = true
+      }
     }
   }
 
