@@ -27,14 +27,24 @@ const sidebarColor = computed(() => {
   return color?.color || ''
 })
 const sidebarOutlineColor = computed(() => {
-  const diff = 128 - isDark(sidebarColor.value)
+  let diff = 128 - isDark(sidebarColor.value)
+  const min = 48
+  if (diff > 0 && diff < min)
+    diff = min
+  else if (diff < 0 && diff > -min)
+    diff = -min
   if (!sidebarColor.value)
     return ''
   const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.4 : diff * 2.5)
   return shadeColor
 })
 const sidebarFontColor = computed(() => {
-  const diff = 128 - isDark(sidebarColor.value)
+  let diff = 128 - isDark(sidebarColor.value)
+  const min = 48
+  if (diff > 0 && diff < min)
+    diff = min
+  else if (diff < 0 && diff > -min)
+    diff = -min
   if (!sidebarColor.value)
     return ''
   const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.8 : diff * 4)

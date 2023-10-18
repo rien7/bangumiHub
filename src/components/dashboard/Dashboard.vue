@@ -5,7 +5,7 @@ import MainBoard from './mainboard/MainBoard.vue'
 </script>
 
 <template>
-  <div h-100vh flex>
+  <div fixed h-100vh flex>
     <Sidebar />
     <div w-full flex flex-col>
       <Searchbar />

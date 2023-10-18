@@ -20,8 +20,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :class="datkMode && 'dark'" h-100vh>
-    <router-view />
+  <div fixed h-100vh>
+    <router-view :class="datkMode && 'dark'" w-100vw />
   </div>
 </template>
 
