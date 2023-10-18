@@ -1,8 +1,10 @@
 import type MarkData from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
+import { t2s } from '@/utils/stConvert'
 
 async function getImgUrlByName(name: string) {
-  const url = `https://api.bgm.tv/search/subject/${name}?type=2`
+  const sName = t2s(name)
+  const url = `https://api.bgm.tv/search/subject/${sName}?type=2`
   const encodedUrl = encodeURI(url)
   let id: string | undefined
   try {
