@@ -19,7 +19,7 @@ class MarkData {
   favourite: string | undefined
 
   id: string
-  ids: string[]
+  channelId: string
   image?: string
 
   constructor() {
@@ -31,8 +31,8 @@ class MarkData {
     this.text = ''
     this.mark = ''
     this.favourite = undefined
-    this.ids = []
     this.id = ''
+    this.channelId = ''
   }
 }
 

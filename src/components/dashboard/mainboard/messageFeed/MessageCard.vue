@@ -79,11 +79,13 @@ async function favouriteClick() {
     const url = await getImgUrlByName(markData.value!.title)
     db.put(StoreNames.FAVOURITE_MARKS, {
       id: markData.value!.favourite,
-      ids: [`${props.message.channelId.toString()}+${props.message.id.toString()}`],
       mark: markData.value!.mark,
       title: markData.value!.title,
       subTitle: markData.value!.subTitle,
       text: props.message.message,
+      channelId: props.message.channelId.toString(),
+      lang: { ...markData.value!.lang },
+      quality: markData.value!.quality,
       image: url,
     }, markData.value!.favourite)
   }

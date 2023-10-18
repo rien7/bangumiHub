@@ -1,11 +1,14 @@
 <script setup lang='ts'>
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { returnBigInt } from 'telegram/Helpers'
+import { getMarkedMessageQuery } from '../marks/utils'
 import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
 import type Message from '@/models/Message'
 import useGlobalStore from '@/store/global'
+import db, { StoreNames } from '@/utils/db'
 
 let lastMessageId = 0
 
@@ -14,16 +17,18 @@ const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
 const globalStore = useGlobalStore()
-const { activeChannel: acviteChannel, messageQuery, searchChannel } = storeToRefs(globalStore)
+const { activeChannel, messageQuery, searchChannel, activeMark } = storeToRefs(globalStore)
 
-watch([acviteChannel, messageQuery, searchChannel], async () => {
+watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
   await init()
 })
 
 async function onScroll() {
   const { scrollTop, scrollHeight, clientHeight } = messageFeed.value!
   if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value) {
-    if (messageQuery.value.length === 0)
+    if (activeMark.value)
+      await getMarkedMessages()
+    else if (messageQuery.value.length === 0)
       await getMessages()
     else
       await searchMessages()
@@ -31,7 +36,12 @@ async function onScroll() {
 }
 
 async function init() {
-  if (messageQuery.value.length === 0) {
+  if (activeMark.value) {
+    lastMessageId = 0
+    messages.value = []
+    getMarkedMessages()
+  }
+  else if (messageQuery.value.length === 0) {
     lastMessageId = 0
     messages.value = []
     getMessages()
@@ -44,13 +54,13 @@ async function init() {
 }
 
 async function getMessages() {
-  if ((!acviteChannel.value || !acviteChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash))
+  if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash))
     return
   updating.value = true
   const newMessages = await getChannelMessages(
-    searchChannel.value?.id || acviteChannel.value!.id,
+    searchChannel.value?.id || activeChannel.value!.id,
     lastMessageId,
-    searchChannel.value?.accessHash || acviteChannel.value!.accessHash,
+    searchChannel.value?.accessHash || activeChannel.value!.accessHash,
   )
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
@@ -58,15 +68,48 @@ async function getMessages() {
 }
 
 async function searchMessages() {
-  if (!acviteChannel.value || !acviteChannel.value.accessHash || !messageQuery.value)
+  if (!activeChannel.value || !activeChannel.value.accessHash || !messageQuery.value)
     return
   updating.value = true
   const newMessages = await searchMsgTelegram(
-    acviteChannel.value.id,
+    activeChannel.value.id,
     messageQuery.value,
     lastMessageId,
-    acviteChannel.value.accessHash,
+    activeChannel.value.accessHash,
   )
+  messages.value = messages.value.concat(newMessages)
+  lastMessageId = messages.value[messages.value.length - 1].id
+  updating.value = false
+}
+
+async function getMarkedMessages() {
+  if (!activeMark.value)
+    return
+  updating.value = true
+  const queryData = await getMarkedMessageQuery(activeMark.value.id)
+  if (!queryData)
+    return
+  const { channelId, query } = queryData
+  const newMessages = await searchMsgTelegram(
+    returnBigInt(channelId),
+    query,
+    lastMessageId,
+    activeChannel.value!.accessHash,
+  )
+  const _markData = {
+    ...activeMark.value,
+    text: undefined,
+    favourite: activeMark.value.id,
+    lang: { ...activeMark.value.lang },
+  }
+  const episodeMark = activeMark.value.mark.match(/e(\d+),(\d+)/)!
+  newMessages.forEach((msg) => {
+    const episode = msg.message.substring(Number(episodeMark[1]), Number(episodeMark[2]))
+    db.put(StoreNames.MARK_INDEX, {
+      ..._markData,
+      episode,
+    }, `${msg.channelId.toString()}+${msg.id.toString()}`)
+  })
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
@@ -83,7 +126,7 @@ onMounted(async () => {
     @scroll="onScroll"
   >
     <div v-for="message in messages" :key="message.id">
-      <MessageCard :message="message" :channel-id="searchChannel?.id || acviteChannel!.id" />
+      <MessageCard :message="message" :channel-id="searchChannel?.id || activeChannel!.id" />
     </div>
   </div>
 </template>
