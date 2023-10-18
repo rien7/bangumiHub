@@ -31,6 +31,6 @@ onMounted(() => {
   <div
     h-8 w-8 overflow-hidden rounded-full
   >
-    <img ref="imgDom" :src="props.src">
+    <img ref="imgDom" :src="props.src" crossorigin="anonymous">
   </div>
 </template>

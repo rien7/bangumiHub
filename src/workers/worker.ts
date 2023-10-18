@@ -1,7 +1,7 @@
 /// <reference lib="WebWorker" />
 
 const sw = globalThis as unknown as ServiceWorkerGlobalScope
-
+sw.skipWaiting()
 sw.addEventListener('fetch', (e: FetchEvent) => {
   const { url } = e.request
   const { pathname } = new URL(url)

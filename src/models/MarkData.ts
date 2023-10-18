@@ -16,6 +16,7 @@ class MarkData {
   quality: string
   text: string
   mark: string
+  favourite: string | undefined
 
   constructor() {
     this.subTitle = ''
@@ -25,6 +26,7 @@ class MarkData {
     this.quality = ''
     this.text = ''
     this.mark = ''
+    this.favourite = undefined
   }
 }
 

@@ -13,14 +13,18 @@ provide('expand', expand)
 
 const globalStore = useGlobalStore()
 const favouriteChannels = ref<{ id: bigInt.BigInteger; name: string; image: string }[]>([])
+const favouriteMarks = ref<{ id: string; title: string; subTitle?: string; image?: string }[]>([])
 
 onMounted(async () => {
   await updateChannels()
+  await updateMarks()
 })
 
 window.addEventListener('message', async (event) => {
   if (event.data.type === 'favourite-channels')
     await updateChannels()
+  if (event.data.type === 'favourite-marks')
+    await updateMarks()
 })
 
 async function updateChannels() {
@@ -36,6 +40,18 @@ async function updateChannels() {
   if (!globalStore.acviteChannel)
     globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }
+
+async function updateMarks() {
+  const marks = await db.getAll(StoreNames.FAVOURITE_MARKS)
+  favouriteMarks.value = marks.map((mark) => {
+    return {
+      id: mark.id,
+      title: mark.title,
+      subTitle: mark.subTitle,
+      image: `https://proxy.zrien7.workers.dev/bgm/${mark.image}`,
+    }
+  })
+}
 </script>
 
 <template>
@@ -45,6 +61,15 @@ async function updateChannels() {
     shadow="lg gray-200 dark:gray-700"
     relative z-10 h-100vh flex flex-col justify-end transition-all
   >
+    <SidebarGroup title="Bangumi" icon="mingcute:horn-line">
+      <SidebarBtn
+        v-for="mark in favouriteMarks"
+        :id="mark.id" :key="mark.id" :text="`${mark.subTitle ? `${mark.subTitle}-` : ''}${mark.title}`" :image="mark.image" :clickable="true" :expandable="true"
+      >
+        <ImageIcon v-if="mark.image" :src="mark.image" />
+        <SvgIcon v-else icon="line-md:bookmark" />
+      </SidebarBtn>
+    </SidebarGroup>
     <SidebarGroup title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"

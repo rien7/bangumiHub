@@ -15,7 +15,7 @@ const banned = ref(false)
 watch([markedType], () => {
   if (markedType.includes(props.type)) {
     clicked.value = false
-    banned.value = true
+    banned.value = props.type !== MarkType.Title
   }
   else {
     banned.value = false

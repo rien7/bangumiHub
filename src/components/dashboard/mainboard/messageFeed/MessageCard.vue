@@ -13,6 +13,7 @@ import MarkData, { LangEnum } from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
 import { readableDate } from '@/utils/date'
+import { getImgUrlByName } from '@/components/dashboard/mainboard/marks/utils'
 
 const props = defineProps<{
   message: Message
@@ -68,6 +69,32 @@ function btnClick() {
     messageCardStore.setMarkingCardId(props.message.id)
 }
 
+async function favouriteClick() {
+  if (markData.value!.favourite) {
+    db.delete(StoreNames.FAVOURITE_MARKS, markData.value!.favourite)
+    markData.value!.favourite = undefined
+  }
+  else {
+    markData.value!.favourite = encode(Math.random() * 999999999)
+    const url = await getImgUrlByName(markData.value!.title)
+    db.put(StoreNames.FAVOURITE_MARKS, {
+      ids: [`${props.message.channelId.toString()}+${props.message.id.toString()}`],
+      mark: markData.value!.mark,
+      title: markData.value!.title,
+      subTitle: markData.value!.subTitle,
+      text: props.message.message,
+      image: url,
+    }, markData.value!.favourite)
+  }
+
+  db.put(StoreNames.MARK_INDEX, {
+    ...markData.value,
+    lang: { ...markData.value!.lang },
+  }, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
+
+  window.postMessage({ type: 'favourite-marks' }, location.href)
+}
+
 async function markComplate() {
   const media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
   const _markData = new MarkData()
@@ -80,7 +107,7 @@ async function markComplate() {
       mark += `s${start},${end}`
     }
     else if (selection.type === MarkType.Title) {
-      _markData.title = selection.text
+      _markData.title += _markData.title !== '' ? ` ${selection.text}` : selection.text
       mark += `t${start},${end}`
     }
     else if (selection.type === MarkType.Episode) {
@@ -170,6 +197,16 @@ onMounted(async () => {
             @click="showMarkData = !showMarkData"
           />
         </div>
+      </div>
+      <div absolute bottom-1 right-1 flex>
+        <ActionBtn :icons="['icon-park-outline:list-add']" :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition />
+        <ActionBtn
+          v-if="markData" :icons="[markData.favourite ? 'line-md:star-filled' : 'line-md:star']"
+          :highlight-index="markData.favourite ? 0 : undefined"
+          :highlight-color="markData.favourite ? ['#fde047', '#facc15', '#eab308'] : undefined"
+          :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition
+          @click="favouriteClick"
+        />
       </div>
     </div>
     <div
