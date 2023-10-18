@@ -87,7 +87,7 @@ function handleJoinClick() {
             <Icon color="#FFD700" :icon="favourite ? 'line-md:star-filled' : 'line-md:star'" class="h-full w-full rounded-full" />
           </div>
           <div
-            v-if="joined !== undefined"
+            v-if="joined !== undefined && props.type === 'channel'"
             h-8 w-8 cursor-pointer rounded-full p-1 transition-all
             @click="handleJoinClick"
           >
