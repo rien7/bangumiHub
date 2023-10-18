@@ -22,4 +22,14 @@ function readableDate(_date: number) {
     return 'just now'
 }
 
-export { readableDate }
+function readableSeconds(seconds: number) {
+  const hour = Math.floor(seconds / 3600)
+  const _hour = hour.toString().padStart(2, '0')
+  const min = Math.floor((seconds - hour * 3600) / 60)
+  const _min = min.toString().padStart(2, '0')
+  const sec = Math.floor(seconds - hour * 3600 - min * 60)
+  const _sec = sec.toString().padStart(2, '0')
+  return hour > 0 ? `${_hour}:${_min}:${_sec}` : `${_min}:${_sec}`
+}
+
+export { readableDate, readableSeconds }

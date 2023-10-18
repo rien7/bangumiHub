@@ -12,7 +12,7 @@ import { encode } from '@/utils/number'
 import MarkData, { LangEnum } from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
-import { readableDate } from '@/utils/date'
+import { readableDate, readableSeconds } from '@/utils/date'
 import { getImgUrlByName } from '@/components/dashboard/mainboard/marks/utils'
 import useGlobalStore from '@/store/global'
 
@@ -32,6 +32,7 @@ const markingTitleMeta = ref(false)
 const delay300 = ref(false)
 const mounted = ref(false)
 const showMarkData = ref(true)
+const dura: Ref<number | undefined> = ref(undefined)
 
 const markData: Ref<MarkData | undefined> = ref(undefined)
 
@@ -174,6 +175,8 @@ onMounted(async () => {
   const data = await db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
   if (data)
     markData.value = data as MarkData
+  const media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
+  dura.value = media.duration
   mounted.value = true
 })
 </script>
@@ -214,6 +217,14 @@ onMounted(async () => {
           :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition
           @click="favouriteClick"
         />
+      </div>
+      <div
+        v-if="dura"
+        :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
+        absolute bottom-1 left-1 m-1 flex rounded-md px-1 py-0.5 text-2.5 font-mono transition
+        bg="gray-200/80 dark:gray-700/80"
+      >
+        {{ readableSeconds(dura) }}
       </div>
     </div>
     <div
