@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Sidebar from './sidebar/Sidebar.vue'
 import Searchbar from './searchbar/Searchbar.vue'
-import MainBoard from './mainboard/MainBoard.vue'
 </script>
 
 <template>
@@ -9,7 +8,7 @@ import MainBoard from './mainboard/MainBoard.vue'
     <Sidebar />
     <div w-full flex flex-col>
       <Searchbar />
-      <MainBoard />
+      <router-view />
     </div>
   </div>
 </template>

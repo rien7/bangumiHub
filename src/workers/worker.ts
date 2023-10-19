@@ -5,9 +5,9 @@ sw.skipWaiting()
 sw.addEventListener('fetch', (e: FetchEvent) => {
   const { url } = e.request
   const { pathname } = new URL(url)
-  if (pathname.includes('/img/'))
+  if (pathname.startsWith('/img/'))
     e.respondWith(imageHandler(url, e))
-  else if (pathname.includes('/v/'))
+  else if (pathname.startsWith('/v/'))
     e.respondWith(videoHandler(url, e))
 })
 
@@ -110,9 +110,7 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
   ])
 
   promise
-    .catch((reason) => {
-      console.error(reason)
-    })
+    .catch(() => {})
     .finally(() => {
       requestStates.delete(params.url)
       isResolved = true

@@ -2,8 +2,7 @@
 import { ref, watch } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import { storeToRefs } from 'pinia'
-import ChannelHeader from '../mainboard/headers/ChannelHeader.vue'
-import MarkHeader from '../mainboard/headers/MarkHeader.vue'
+import { useRoute, useRouter } from 'vue-router'
 import Indicator from './Indicator.vue'
 import { getChannel } from './searchChannel'
 import type Channel from '@/models/Channel'
@@ -15,10 +14,13 @@ enum SearchType {
 }
 
 const globalStore = useGlobalStore()
-const { activeChannel, searchChannel, activeMark } = storeToRefs(globalStore)
+const { activeChannel } = storeToRefs(globalStore)
 
 const inputField = ref<HTMLInputElement | null>(null)
 const currentSearchType = ref(SearchType.Channels)
+
+const route = useRoute()
+const router = useRouter()
 
 watch([activeChannel], () => {
   if (!activeChannel.value)
@@ -41,6 +43,8 @@ function switchMessageChannel() {
 async function handleInputSubmit(_e: KeyboardEvent) {
   if (_e.key !== 'Enter')
     return
+  if (route.path !== '/')
+    router.push('/')
   if (currentSearchType.value === SearchType.Channels) {
     searchResult.value = await getChannel(inputField.value!.value)
     globalStore.setSearchChannel(searchResult.value)
@@ -88,8 +92,6 @@ async function handleInputSubmit(_e: KeyboardEvent) {
     </div>
     <!-- <ChannelSkeleton v-if="!searchResult && currentSearchType === SearchType.Channels && inputField?.value" />
     <ChannelResult v-else-if="searchResult && currentSearchType === SearchType.Channels && inputField?.value" :channel="searchResult!" /> -->
-    <ChannelHeader v-if="searchChannel && currentSearchType === SearchType.Channels && inputField?.value" />
-    <MarkHeader v-if="activeMark" />
   </div>
 </template>
 

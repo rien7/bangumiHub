@@ -2,6 +2,7 @@
 import type { Ref } from 'vue'
 import { computed, inject, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
 import { getShadeColor, isDark } from './getMainColor'
 import useGlobalStore from '@/store/global'
 import useSidebarStore from '@/store/sidebar'
@@ -17,6 +18,9 @@ const props = defineProps<{
 const expand = inject<Ref<boolean>>('expand')!
 const hover = ref(false)
 const popup = ref(false)
+
+const route = useRoute()
+const router = useRouter()
 
 const globalStore = useGlobalStore()
 const sidebarStore = useSidebarStore()
@@ -62,6 +66,8 @@ watch([expand, hover], () => {
 
 async function handleBtnClick() {
   if (props.clickable && props.id && props.type) {
+    if (route.path !== '/')
+      router.push('/')
     if (props.type === 'channel')
       globalStore.setActiveChannelById(props.id)
     else

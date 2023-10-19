@@ -8,20 +8,20 @@ const router = useRouter()
 if (!SESSION_STRING)
   router.push('/login')
 
-const datkMode = ref()
+const darkMode = ref()
 
 onMounted(() => {
-  datkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  darkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
   window.matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (event) => {
-      datkMode.value = event.matches
+      darkMode.value = event.matches
     })
 })
 </script>
 
 <template>
   <div fixed h-100vh>
-    <router-view :class="datkMode && 'dark'" w-100vw />
+    <router-view :class="darkMode && 'dark'" w-100vw />
   </div>
 </template>
 

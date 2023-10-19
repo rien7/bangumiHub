@@ -4,14 +4,23 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import Video from './components/video/Video.vue'
 import Login from './components/login/Login.vue'
-import Dashboard from './components/dashboard/Dashboard.vue'
+import MainBoard from './components/dashboard/mainboard/MainBoard.vue'
 import 'virtual:uno.css'
 import '@unocss/reset/tailwind.css'
+import Dashboard from './components/dashboard/Dashboard.vue'
 
 const routes = [
-  { path: '/', component: Dashboard },
   { path: '/login', component: Login },
-  { path: '/v/:id', component: Video },
+  { path: '/', component: Dashboard, children: [
+    {
+      path: '',
+      component: MainBoard,
+    },
+    {
+      path: 'v/:id',
+      component: Video,
+    },
+  ] },
 ]
 
 const router = createRouter({
