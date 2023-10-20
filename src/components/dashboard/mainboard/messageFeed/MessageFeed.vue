@@ -1,13 +1,15 @@
 <script setup lang='ts'>
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { getMarkedMessageQuery } from '../marks/utils'
+import { getFromTiDB, getMarkedMessageQuery, uploadTiDB } from '../marks/utils'
+import { getFromMark, getLang, getQuality } from '../marks/extractData'
 import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
 import type Message from '@/models/Message'
 import useGlobalStore from '@/store/global'
 import db, { StoreNames } from '@/utils/db'
+import type { Media } from '@/models/Media'
 
 let lastMessageId = 0
 
@@ -64,6 +66,38 @@ async function getMessages() {
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
+  getFromTiDB(
+    Number.parseInt((searchChannel.value?.id || activeChannel.value!.id).toString()),
+    Math.min(newMessages[0].id, newMessages[newMessages.length - 1].id),
+    Math.max(newMessages[0].id, newMessages[newMessages.length - 1].id),
+  )
+    .then(res => res.json())
+    .then(json => json.data.rows)
+    .then((rows) => {
+      rows.forEach(async (row) => {
+        const channelId = row.channel_id
+        const messageId = row.message_id
+        const mark = row.mark
+        // eslint-disable-next-line eqeqeq
+        const msg = messages.value.filter(msg => msg.id == messageId)[0]
+        if (!msg)
+          return
+        const { subTitle, title, episode } = getFromMark(mark, msg.message)
+        const lang = getLang(msg.message)
+        const media = await db.get(StoreNames.MEDIA, msg.mediaId?.toString() || '') as Media
+        const quality = getQuality(media)
+
+        db.put(StoreNames.MARK_INDEX, {
+          channelId,
+          title,
+          subTitle,
+          episode,
+          mark,
+          lang: { ...lang },
+          quality,
+        }, `${channelId.toString()}+${messageId.toString()}`)
+      })
+    })
 }
 
 async function searchMessages() {
@@ -79,6 +113,38 @@ async function searchMessages() {
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
+  getFromTiDB(
+    Number.parseInt((searchChannel.value?.id || activeChannel.value!.id).toString()),
+    Math.min(newMessages[0].id, newMessages[newMessages.length - 1].id),
+    Math.max(newMessages[0].id, newMessages[newMessages.length - 1].id),
+  )
+    .then(res => res.json())
+    .then(json => json.data.rows)
+    .then((rows) => {
+      rows.forEach(async (row) => {
+        const channelId = row.channel_id
+        const messageId = row.message_id
+        const mark = row.mark
+        // eslint-disable-next-line eqeqeq
+        const msg = messages.value.filter(msg => msg.id == messageId)[0]
+        if (!msg)
+          return
+        const { subTitle, title, episode } = getFromMark(mark, msg.message)
+        const lang = getLang(msg.message)
+        const media = await db.get(StoreNames.MEDIA, msg.mediaId?.toString() || '') as Media
+        const quality = getQuality(media)
+
+        db.put(StoreNames.MARK_INDEX, {
+          channelId,
+          title,
+          subTitle,
+          episode,
+          mark,
+          lang: { ...lang },
+          quality,
+        }, `${channelId.toString()}+${messageId.toString()}`)
+      })
+    })
 }
 
 async function getMarkedMessages() {
@@ -131,6 +197,8 @@ async function getMarksFromNet(markId: string) {
       ..._markData,
       episode,
     }, `${msg.channelId.toString()}+${msg.id.toString()}`)
+    if (activeMark.value?.mark)
+      uploadTiDB(msg.channelId.toJSNumber(), msg.id, activeMark.value?.mark)
   })
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id

@@ -62,7 +62,7 @@ async function updateMarks() {
     shadow="lg gray-200 dark:gray-700"
     relative z-10 h-100vh flex flex-col justify-end transition-all
   >
-    <SidebarGroup title="Bangumi" icon="mingcute:horn-line">
+    <SidebarGroup v-if="favouriteMarks.length > 0" title="Bangumi" icon="line-md:star-filled">
       <SidebarBtn
         v-for="mark in favouriteMarks"
         :id="mark.id"
@@ -74,7 +74,7 @@ async function updateMarks() {
         </div>
       </SidebarBtn>
     </SidebarGroup>
-    <SidebarGroup title="Channel" icon="mingcute:horn-line">
+    <SidebarGroup v-if="favouriteChannels.length > 0" title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"
         :id="channel.id.toString()"

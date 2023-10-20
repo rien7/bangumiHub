@@ -3,17 +3,18 @@ import type { Ref } from 'vue'
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { getLang, getQuality } from '../marks/extractData'
 import ActionBtn from './ActionBtn.vue'
 import MarkTool from './markTools/MarkTool.vue'
 import SelectText from './markTools/SelectText.vue'
 import type Message from '@/models/Message'
 import useMessageCardStore, { MarkType } from '@/store/messageCard'
 import { encode } from '@/utils/number'
-import MarkData, { LangEnum } from '@/models/MarkData'
+import MarkData from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
 import { readableDate, readableSeconds } from '@/utils/date'
-import { getImgUrlByName } from '@/components/dashboard/mainboard/marks/utils'
+import { getImgUrlByName, uploadTiDB } from '@/components/dashboard/mainboard/marks/utils'
 import useGlobalStore from '@/store/global'
 
 const props = defineProps<{
@@ -122,50 +123,16 @@ async function markComplate() {
   }
   _markData.mark = mark
   _markData.text = props.message.message
-  const _msg = props.message.message.toUpperCase()
 
-  const langMap = [
-    { CHS: LangEnum.S },
-    { CHT: LangEnum.T },
-    { JPN: LangEnum.J },
-    { ENG: LangEnum.E },
-    { BIG5: LangEnum.T },
-    { GB: LangEnum.S },
-    { JP: LangEnum.J },
-    { JPTC: [LangEnum.J, LangEnum.T] },
-    { JPSC: [LangEnum.J, LangEnum.S] },
-    { 简: LangEnum.S },
-    { 簡: LangEnum.S },
-    { 繁: LangEnum.T },
-    { 日: LangEnum.J },
-    { 英: LangEnum.E },
-  ]
-  for (const lang of langMap) {
-    for (const key in lang) {
-      if (_msg.includes(key)) {
-        for (const l of lang[key])
-          _markData.lang[l] = true
-      }
-    }
-  }
-
-  if (media.value) {
-    if (media.value.h === 720)
-      _markData.quality = '720p'
-    else if (media.value.h === 1080)
-      _markData.quality = '1080p'
-    else if (media.value.w === 2560 || media.value.w === 2560)
-      _markData.quality = '2K'
-    else if (media.value.w === 4096)
-      _markData.quality = '4K'
-  }
+  _markData.lang = getLang(props.message.message)
+  _markData.quality = getQuality(media.value)
   markData.value = _markData
   db.put(StoreNames.MARK_INDEX, {
     ..._markData,
     channelId: props.message.channelId.toString(),
     text: undefined,
   }, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
-
+  uploadTiDB(props.message.channelId.toJSNumber(), props.message.id, _markData.mark)
   messageCardStore.clear()
 }
 
