@@ -19,6 +19,7 @@ const globalStore = useGlobalStore()
 const { activeChannel, messageQuery, searchChannel, activeMark, currentValue } = storeToRefs(globalStore)
 
 watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
+  console.log('mark', currentValue.value)
   await init()
 })
 
@@ -29,7 +30,7 @@ async function onScroll() {
       await getMarkedMessages()
     else if (messageQuery.value.length === 0 && currentValue.value === 'channel')
       await getMessages()
-    else
+    else if (currentValue.value === 'searchChannel' || currentValue.value === 'searchMessage')
       await searchMessages()
   }
 }
@@ -45,7 +46,7 @@ async function init() {
     messages.value = []
     await getMessages()
   }
-  else {
+  else if (currentValue.value === 'searchChannel' || currentValue.value === 'searchMessage') {
     lastMessageId = 0
     messages.value = []
     await searchMessages()
@@ -55,6 +56,7 @@ async function init() {
 async function getMessages() {
   if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash) || updating.value)
     return
+  console.log('get msg')
   updating.value = true
   const newMessages = await getChannelMessages(
     searchChannel.value?.id || activeChannel.value!.id,
@@ -84,9 +86,9 @@ async function searchMessages() {
 async function getMarkedMessages() {
   if (!activeMark.value || updating.value)
     return
+  console.log('marked data')
   updating.value = true
   const queryData = await getMarkedMessageQuery(activeMark.value.id)
-  console.log(queryData)
   if (!queryData)
     return
   const { channelId, query } = queryData

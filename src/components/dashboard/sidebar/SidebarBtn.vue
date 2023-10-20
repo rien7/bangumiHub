@@ -68,10 +68,14 @@ async function handleBtnClick() {
   if (props.clickable && props.id && props.type) {
     if (route.path !== '/')
       router.push('/')
-    if (props.type === 'channel')
+    if (props.type === 'channel') {
+      globalStore.setCurrentValue('channel')
       globalStore.setActiveChannelById(props.id)
-    else
+    }
+    else {
+      globalStore.setCurrentValue('mark')
       globalStore.setActiveMarkById(props.id)
+    }
   }
 }
 </script>
