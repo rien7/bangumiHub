@@ -63,6 +63,8 @@ async function getMessages() {
     lastMessageId,
     searchChannel.value?.accessHash || activeChannel.value!.accessHash,
   )
+  if (!newMessages)
+    return
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
