@@ -26,6 +26,9 @@ async function getMarkedMessageQuery(id: string) {
   const mark = _mark as MarkData
   const channelId = mark.channelId
   const text = mark.text
+  if (text === undefined)
+    return
+
   const episodeMark = mark.mark.match(/e(\d+),(\d+)/)
   if (episodeMark === null || episodeMark?.length !== 3) {
     console.error('episodeMark is not valid')

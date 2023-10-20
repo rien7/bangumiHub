@@ -16,7 +16,7 @@ const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
 const globalStore = useGlobalStore()
-const { activeChannel, messageQuery, searchChannel, activeMark } = storeToRefs(globalStore)
+const { activeChannel, messageQuery, searchChannel, activeMark, currentValue } = storeToRefs(globalStore)
 
 watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
   await init()
@@ -25,9 +25,9 @@ watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
 async function onScroll() {
   const { scrollTop, scrollHeight, clientHeight } = messageFeed.value!
   if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value) {
-    if (activeMark.value)
+    if (activeMark.value && currentValue.value === 'mark')
       await getMarkedMessages()
-    else if (messageQuery.value.length === 0)
+    else if (messageQuery.value.length === 0 && currentValue.value === 'channel')
       await getMessages()
     else
       await searchMessages()
@@ -35,12 +35,12 @@ async function onScroll() {
 }
 
 async function init() {
-  if (activeMark.value) {
+  if (activeMark.value && currentValue.value === 'mark') {
     lastMessageId = 0
     messages.value = []
     await getMarkedMessages()
   }
-  else if (messageQuery.value.length === 0) {
+  else if (messageQuery.value.length === 0 && currentValue.value === 'channel') {
     lastMessageId = 0
     messages.value = []
     await getMessages()
@@ -53,7 +53,7 @@ async function init() {
 }
 
 async function getMessages() {
-  if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash))
+  if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash) || updating.value)
     return
   updating.value = true
   const newMessages = await getChannelMessages(
@@ -67,7 +67,7 @@ async function getMessages() {
 }
 
 async function searchMessages() {
-  if (!activeChannel.value || !activeChannel.value.accessHash || !messageQuery.value)
+  if (!activeChannel.value || !activeChannel.value.accessHash || !messageQuery.value || updating.value)
     return
   updating.value = true
   const newMessages = await searchMsgTelegram(
@@ -82,10 +82,11 @@ async function searchMessages() {
 }
 
 async function getMarkedMessages() {
-  if (!activeMark.value)
+  if (!activeMark.value || updating.value)
     return
   updating.value = true
   const queryData = await getMarkedMessageQuery(activeMark.value.id)
+  console.log(queryData)
   if (!queryData)
     return
   const { channelId, query } = queryData
@@ -94,6 +95,8 @@ async function getMarkedMessages() {
     query,
     lastMessageId,
   )
+  if (newMessages.length === 0)
+    return
   const _markData = {
     ...activeMark.value,
     text: undefined,
@@ -110,6 +113,12 @@ async function getMarkedMessages() {
   })
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
+  db.put(StoreNames.FAVOURITE_MARKS, {
+    ..._markData,
+    text: activeMark.value.text,
+    ids: newMessages.map(msg => msg.id.toString()).join(','),
+    episode: undefined,
+  }, `${activeMark.value.id.toString()}`)
   updating.value = false
 }
 

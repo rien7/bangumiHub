@@ -14,12 +14,12 @@ async function getChannelMessages(channelId: bigInt.BigInteger, offsetId?: numbe
   return messages.map(message => new Message(message))
 }
 
-async function getChannelMessagesByMessageId(channelId: bigInt.BigInteger, ids: Api.InputMessageID[], accessHash?: bigInt.BigInteger) {  
+async function getChannelMessagesByMessageId(channelId: bigInt.BigInteger, ids: Api.InputMessageID[], accessHash?: bigInt.BigInteger) {
   const result = await CLIENT.invoke(
     new Api.channels.GetMessages({
       channel: accessHash ? new Api.InputPeerChannel({ channelId, accessHash }) : channelId,
       id: ids,
-    })
+    }),
   ) as Api.messages.Messages
   const messages = result.messages as Api.Message[]
   return messages.map(message => new Message(message))

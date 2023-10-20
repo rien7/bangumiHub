@@ -21,19 +21,24 @@ const props = defineProps<{
   channelId: bigInt.BigInteger
 }>()
 
+/**
+ * store
+ */
 const globalStore = useGlobalStore()
 const { activeMark } = storeToRefs(globalStore)
 
 const messageCardStore = useMessageCardStore()
 const { markingColor, markingType, markingCardId, markingSelections } = storeToRefs(messageCardStore)
 
+/**
+ * ref
+ */
 const hoverImg = ref(false)
 const markingTitleMeta = ref(false)
-const delay300 = ref(false)
 const mounted = ref(false)
 const showMarkData = ref(true)
-const dura: Ref<number | undefined> = ref(undefined)
 
+const media: Ref<Media | undefined> = ref(undefined)
 const markData: Ref<MarkData | undefined> = ref(undefined)
 
 const router = useRouter()
@@ -43,17 +48,9 @@ watch([markingCardId], () => {
     markingTitleMeta.value = false
 })
 
-watch([markingTitleMeta], () => {
-  if (markingTitleMeta.value) {
-    setTimeout(() => {
-      delay300.value = true
-    }, 300)
-  }
-  else {
-    delay300.value = false
-  }
-})
-
+/**
+ * click handler
+ */
 function imgClick() {
   const channelIdString = props.channelId.toString()
   const msgIdString = props.message.id!.toString()
@@ -66,7 +63,7 @@ function imgClick() {
   router.push(`/v/${channelIdEncode}${spliter}${msgIdEncode}`)
 }
 
-function btnClick() {
+function markClick() {
   markingTitleMeta.value = !markingTitleMeta.value
   if (!markingTitleMeta.value)
     messageCardStore.clear()
@@ -104,7 +101,6 @@ async function favouriteClick() {
 }
 
 async function markComplate() {
-  const media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
   const _markData = new MarkData()
   let mark = ''
   let start = 0
@@ -153,18 +149,20 @@ async function markComplate() {
     }
   }
 
-  if (media.h === 720)
-    _markData.quality = '720p'
-  else if (media.h === 1080)
-    _markData.quality = '1080p'
-  else if (media.w === 2560 || media.w === 2560)
-    _markData.quality = '2K'
-  else if (media.w === 4096)
-    _markData.quality = '4K'
-
+  if (media.value) {
+    if (media.value.h === 720)
+      _markData.quality = '720p'
+    else if (media.value.h === 1080)
+      _markData.quality = '1080p'
+    else if (media.value.w === 2560 || media.value.w === 2560)
+      _markData.quality = '2K'
+    else if (media.value.w === 4096)
+      _markData.quality = '4K'
+  }
   markData.value = _markData
   db.put(StoreNames.MARK_INDEX, {
     ..._markData,
+    channelId: props.message.channelId.toString(),
     text: undefined,
   }, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
 
@@ -172,11 +170,11 @@ async function markComplate() {
 }
 
 onMounted(async () => {
-  const data = await db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
-  if (data)
-    markData.value = data as MarkData
-  const media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
-  dura.value = media.duration
+  const _markData = await db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
+  if (_markData)
+    markData.value = _markData as MarkData
+  const _media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
+  media.value = _media
   mounted.value = true
 })
 </script>
@@ -196,7 +194,7 @@ onMounted(async () => {
           :icons="['material-symbols:format-image-left-rounded']"
           :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
           transition
-          @click="btnClick"
+          @click="markClick"
         />
         <div v-else flex>
           <ActionBtn
@@ -219,12 +217,12 @@ onMounted(async () => {
         />
       </div>
       <div
-        v-if="dura"
+        v-if="media"
         :opacity="hoverImg || markingTitleMeta ? '100' : '0'"
         absolute bottom-1 left-1 m-1 flex rounded-md px-1 py-0.5 text-2.5 font-mono transition
         bg="gray-200/80 dark:gray-700/80"
       >
-        {{ readableSeconds(dura) }}
+        {{ readableSeconds(media.duration || 0) }}
       </div>
     </div>
     <div
@@ -263,7 +261,7 @@ onMounted(async () => {
           :selection="markingTitleMeta"
           h-full w-72
         >
-          <span v-if="!delay300">{{ props.message!.message }}</span>
+          <span v-if="!markingTitleMeta">{{ props.message!.message }}</span>
           <SelectText v-else :text="props.message!.message" :color="markingColor" :type="markingType" />
         </div>
       </div>

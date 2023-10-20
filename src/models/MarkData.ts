@@ -21,6 +21,7 @@ class MarkData {
   favourite: string | undefined
 
   id: string
+  ids: string
   channelId: bigInt.BigInteger
   image?: string
 
@@ -34,6 +35,7 @@ class MarkData {
     this.mark = ''
     this.favourite = undefined
     this.id = ''
+    this.ids = ''
     this.channelId = returnBigInt(0)
   }
 }

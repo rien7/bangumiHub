@@ -41,8 +41,6 @@ function switchMessageChannel() {
 }
 
 async function handleInputSubmit(_e: KeyboardEvent) {
-  if (_e.key !== 'Enter')
-    return
   if (route.path !== '/')
     router.push('/')
   if (currentSearchType.value === SearchType.Channels) {
@@ -79,7 +77,7 @@ async function handleInputSubmit(_e: KeyboardEvent) {
           border="none hover:none focus:none"
           outline="none hover:none focus:none"
           type="text"
-          @keyup="handleInputSubmit"
+          @keyup.enter="handleInputSubmit"
         >
         <div
           bg="gray-200 dark:gray-700 hover:gray-300 hover:dark:gray-600"
@@ -90,8 +88,6 @@ async function handleInputSubmit(_e: KeyboardEvent) {
         </div>
       </div>
     </div>
-    <!-- <ChannelSkeleton v-if="!searchResult && currentSearchType === SearchType.Channels && inputField?.value" />
-    <ChannelResult v-else-if="searchResult && currentSearchType === SearchType.Channels && inputField?.value" :channel="searchResult!" /> -->
   </div>
 </template>
 
