@@ -193,10 +193,12 @@ async function getMarksFromNet(markId: string) {
     lang: { ...activeMark.value.lang },
   }
   const episodeMark = activeMark.value.mark.match(/e(\d+),(\d+)/)!
+  const ids = newMessages.map(msg => msg.id.toString()).join(',')
   newMessages.forEach((msg) => {
     const episode = msg.message.substring(Number(episodeMark[1]), Number(episodeMark[2]))
     db.put(StoreNames.MARK_INDEX, {
       ..._markData,
+      ids,
       episode,
     }, `${msg.channelId.toString()}+${msg.id.toString()}`)
     if (activeMark.value?.mark)
@@ -207,7 +209,7 @@ async function getMarksFromNet(markId: string) {
   db.put(StoreNames.FAVOURITE_MARKS, {
     ..._markData,
     text: activeMark.value.text,
-    ids: newMessages.map(msg => msg.id.toString()).join(','),
+    ids,
     episode: undefined,
   }, `${activeMark.value.id.toString()}`)
 }

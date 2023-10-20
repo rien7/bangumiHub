@@ -32,6 +32,7 @@ const rightPosition = ref<{
   x: number
   y: number
   h: number
+  w: number
 } | undefined>(undefined)
 
 const globalStore = useGlobalStore()
@@ -79,10 +80,14 @@ function getRightSize() {
     rightPosition.value = undefined
     return
   }
+  // get window width
+  const windowWidth = window.innerWidth
+  const w = windowWidth - rect.right - 90
   rightPosition.value = {
-    x: rect.right,
-    y: rect.y,
+    x: rect.right - 50,
+    y: rect.y - 106,
     h: rect.height,
+    w,
   }
 }
 
@@ -172,14 +177,17 @@ onMounted(async () => {
     })
   })
   player.value = _player
+  addEventListener('resize', () => {
+    getRightSize()
+  })
 })
 </script>
 
 <template>
-  <div relative>
+  <div relative m-10>
     <div
-      ref="left" class="video" :w="full ? 'full' : '75%'"
-      :left="full ? '50%' : 0" :translate-x="full ? '-50%' : 0" absolute m-10 flex gap-10 transition-all
+      ref="left" class="video" :w="full ? 'full' : 'full md:75%'"
+      :left="full ? '50%' : 0" :translate-x="full ? '-50%' : 0" absolute flex gap-10 transition-all
       duration-300
     >
       <div>
@@ -210,15 +218,16 @@ onMounted(async () => {
       </div>
     </div>
     <div
-      v-if="messageInMark.length > 0 && !full && rightPosition"
+      v-if="messageInMark.length > 0 && !full && rightPosition && rightPosition.w > 120"
       bg="gray-100 dark:gray-800" class="all-episode" shadow="gray-500/70"
       :style="{
         left: `${rightPosition.x}px`,
-        top: `${rightPosition.y - 66}px`,
+        top: `${rightPosition.y}px`,
         height: `${rightPosition.h}px`,
-        maxHeight: `${messageInMark.length * 200 + 60}px`,
+        width: `${rightPosition.w}px`,
+        maxHeight: `${messageInMark.length * ((rightPosition.w - 40) / 16 * 9 + 20) + 60}px`,
       }"
-      absolute rounded-md p-5
+      absolute max-w-360px rounded-md p-5
     >
       <div h-10 text-lg font-500>
         Episodes
@@ -226,12 +235,24 @@ onMounted(async () => {
       <div
         flex flex-col gap-5 overflow-y-scroll
         :style="{
-          maxHeight: `${messageInMark.length * 200}px`,
+          maxHeight: `${messageInMark.length * ((rightPosition.w - 40) / 16 * 9 + 20)}px`,
           height: `${rightPosition.h - 80}px`,
+          width: `${rightPosition.w - 40}px`,
         }"
       >
-        <div v-for="msg in messageInMark.sort((a, b) => a.episode - b.episode)" :key="msg.mediaId" relative w-320px cursor-pointer>
-          <img :src="`/img/m${msg.mediaId}`" rounded-md @click="() => handleImgClick(msg.msgId)">
+        <div
+          v-for="msg in messageInMark.sort((a, b) => a.episode - b.episode)" :key="msg.mediaId"
+          :style="{
+            width: `${rightPosition.w - 40}px`,
+          }" cursor-pointe r relative w-320px
+        >
+          <img
+            :src="`/img/m${msg.mediaId}`" max-w-320px cursor-pointer rounded-md
+            :style="{
+              width: `${rightPosition.w - 40}px`,
+            }"
+            @click="() => handleImgClick(msg.msgId)"
+          >
           <div bg="gray-200/80 dark:gray-700/80" absolute bottom-1 right-1 rounded-lg px-1>
             <span text-sm font-mono>{{ msg.episode.toString().padStart(2, '0') }}</span>
           </div>
