@@ -30,7 +30,7 @@ interface VideoMsg {
 
 type PostMsg = ImgMsg | VideoMsg
 const requestStates = new Map<string, RequestStates>()
-const TIMEOUT = 10_000
+const TIMEOUT = 7_500
 
 async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
   const range = e.request.headers.get('range')
@@ -46,8 +46,8 @@ async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
 
   if (!data || data.videoData.byteLength === 0) {
     return new Response(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
+      status: 504,
+      statusText: 'Gateway Timeout',
     })
   }
 
@@ -106,7 +106,12 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
     new Promise<void>((resolve) => {
       setTimeout(() => resolve(), TIMEOUT)
     })
-      .then(() => isResolved ? undefined : Promise.reject(new Error(`REQUEST_TIMEOUT: ${params.url}`))),
+      .then(() => {
+        if (isResolved)
+          return undefined
+        else
+          return Promise.resolve(undefined)
+      }),
   ])
 
   promise

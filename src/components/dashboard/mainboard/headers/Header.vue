@@ -63,7 +63,7 @@ function handleJoinClick() {
 
 <template>
   <div
-    h-230px w-full flex flex-col justify-center px-8 py-2
+    min-h-214px w-full flex flex-col justify-center px-8 py-2
   >
     <div
       absolute left-0 top-0 z-1 h-70 w-full bg-cover bg-center blur-10

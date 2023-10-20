@@ -6,11 +6,11 @@ import MessageFeed from './messageFeed/MessageFeed.vue'
 import useGlobalStore from '@/store/global'
 
 const globalStore = useGlobalStore()
-const { searchChannel, activeMark } = storeToRefs(globalStore)
+const { currentValue } = storeToRefs(globalStore)
 </script>
 
 <template>
-  <ChannelHeader v-if="searchChannel" />
-  <MarkHeader v-if="activeMark" />
+  <ChannelHeader v-if="currentValue === 'searchChannel'" />
+  <MarkHeader v-if="currentValue === 'mark'" />
   <MessageFeed />
 </template>

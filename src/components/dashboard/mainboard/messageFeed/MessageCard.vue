@@ -26,7 +26,7 @@ const props = defineProps<{
  * store
  */
 const globalStore = useGlobalStore()
-const { activeMark } = storeToRefs(globalStore)
+const { currentValue } = storeToRefs(globalStore)
 
 const messageCardStore = useMessageCardStore()
 const { markingColor, markingType, markingCardId, markingSelections } = storeToRefs(messageCardStore)
@@ -174,9 +174,9 @@ onMounted(async () => {
         </div>
       </div>
       <div absolute bottom-1 right-1 flex>
-        <ActionBtn :icons="['icon-park-outline:list-add']" :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition />
+        <!-- <ActionBtn :icons="['icon-park-outline:list-add']" :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition /> -->
         <ActionBtn
-          v-if="markData && !activeMark" :icons="[markData.favourite ? 'line-md:star-filled' : 'line-md:star']"
+          v-if="markData && currentValue !== 'mark'" :icons="[markData.favourite ? 'line-md:star-filled' : 'line-md:star']"
           :highlight-index="markData.favourite ? 0 : undefined"
           :highlight-color="markData.favourite ? ['#fde047', '#facc15', '#eab308'] : undefined"
           :opacity="hoverImg && !markingTitleMeta ? '100' : '0'" transition
