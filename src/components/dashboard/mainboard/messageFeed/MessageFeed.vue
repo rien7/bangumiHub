@@ -19,7 +19,6 @@ const globalStore = useGlobalStore()
 const { activeChannel, messageQuery, searchChannel, activeMark, currentValue } = storeToRefs(globalStore)
 
 watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
-  console.log('mark', currentValue.value)
   await init()
 })
 
@@ -56,7 +55,6 @@ async function init() {
 async function getMessages() {
   if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash) || updating.value)
     return
-  console.log('get msg')
   updating.value = true
   const newMessages = await getChannelMessages(
     searchChannel.value?.id || activeChannel.value!.id,
@@ -84,19 +82,40 @@ async function searchMessages() {
 }
 
 async function getMarkedMessages() {
-  if (!activeMark.value || updating.value)
+  if (!activeMark.value)
     return
-  console.log('marked data')
   updating.value = true
-  const queryData = await getMarkedMessageQuery(activeMark.value.id)
+
+  const __channelId = activeMark.value.channelId
+  const __ids = activeMark.value.ids
+  if (__ids && __ids.length !== 0) {
+    const __msgs: Message[] = []
+    for (const id of __ids.split(',')) {
+      const msg = await db.get(StoreNames.TA_INDEX, `${__channelId}+${id}`)
+      if (msg)
+        __msgs.push(msg as Message)
+    }
+    messages.value = __msgs
+    lastMessageId = messages.value[messages.value.length - 1].id
+  }
+  updating.value = false
+
+  getMarksFromNet(activeMark.value.id)
+}
+
+async function getMarksFromNet(markId: string) {
+  if (!activeMark.value || markId !== activeMark.value.id)
+    return
+  const queryData = await getMarkedMessageQuery(markId)
   if (!queryData)
     return
   const { channelId, query } = queryData
-  const newMessages = await searchMsgTelegram(
+  const _newMessages = await searchMsgTelegram(
     channelId,
     query,
     lastMessageId,
   )
+  const newMessages = _newMessages.filter(msg => messages.value.filter(m => m.id === msg.id).length === 0)
   if (newMessages.length === 0)
     return
   const _markData = {
@@ -121,7 +140,6 @@ async function getMarkedMessages() {
     ids: newMessages.map(msg => msg.id.toString()).join(','),
     episode: undefined,
   }, `${activeMark.value.id.toString()}`)
-  updating.value = false
 }
 
 onMounted(async () => {

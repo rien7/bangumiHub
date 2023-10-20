@@ -178,7 +178,7 @@ onMounted(async () => {
 <template>
   <div relative>
     <div
-      ref="left" class="video" :w="full ? 'full' : '1280px'"
+      ref="left" class="video" :w="full ? 'full' : '75%'"
       :left="full ? '50%' : 0" :translate-x="full ? '-50%' : 0" absolute m-10 flex gap-10 transition-all
       duration-300
     >
@@ -212,19 +212,21 @@ onMounted(async () => {
     <div
       v-if="messageInMark.length > 0 && !full && rightPosition"
       bg="gray-100 dark:gray-800" class="all-episode" shadow="gray-500/70"
-      absolute rounded-md p-5
       :style="{
         left: `${rightPosition.x}px`,
         top: `${rightPosition.y - 66}px`,
         height: `${rightPosition.h}px`,
+        maxHeight: `${messageInMark.length * 200 + 60}px`,
       }"
+      absolute rounded-md p-5
     >
-      <div h-10>
-        title
+      <div h-10 text-lg font-500>
+        Episodes
       </div>
       <div
         flex flex-col gap-5 overflow-y-scroll
         :style="{
+          maxHeight: `${messageInMark.length * 200}px`,
           height: `${rightPosition.h - 80}px`,
         }"
       >

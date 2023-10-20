@@ -106,7 +106,7 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
     new Promise<void>((resolve) => {
       setTimeout(() => resolve(), TIMEOUT)
     })
-      .then(() => isResolved ? undefined : Promise.reject(new Error('REQUEST_TIMEOUT'))),
+      .then(() => isResolved ? undefined : Promise.reject(new Error(`REQUEST_TIMEOUT: ${params.url}`))),
   ])
 
   promise
