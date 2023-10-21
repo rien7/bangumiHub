@@ -54,7 +54,7 @@ function init() {
   if (img.value && img.value.complete) {
     getColor()
   }
-  else {
+  else if (img.value) {
     img.value!.addEventListener('load', () => {
       getColor()
     })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { SESSION_STRING } from './utils/client'
 import './utils/worker'
@@ -15,7 +15,7 @@ const dark = ref()
 const globalStore = useGlobalStore()
 const { darkMode } = storeToRefs(globalStore)
 
-watch([darkMode], () => {
+function getDarkMode() {
   if (darkMode.value === 'auto') {
     dark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
     window.matchMedia('(prefers-color-scheme: dark)')
@@ -31,6 +31,14 @@ watch([darkMode], () => {
     else
       dark.value = false
   }
+}
+
+watch([darkMode], () => {
+  getDarkMode()
+})
+
+onMounted(() => {
+  getDarkMode()
 })
 </script>
 

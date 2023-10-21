@@ -4,7 +4,7 @@ import { t2s } from '@/utils/stConvert'
 
 async function getImgUrlByName(name: string) {
   const sName = t2s(name)
-  const url = `https://api.bgm.tv/search/subject/${sName}?type=2`
+  const url = `https://proxy.zrien7.workers.dev/search/subject/${sName}?type=2`
   const encodedUrl = encodeURI(url)
   let id: string | undefined
   try {
