@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import { onMounted, onUpdated, ref } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import { joinChannel, leaveChannel } from '../../searchbar/searchChannel'
+import getMainColor, { getShadeColor, isDark } from '../../sidebar/getMainColor'
 import db, { StoreNames } from '@/utils/db'
 
 const props = defineProps<{
@@ -19,6 +20,24 @@ const props = defineProps<{
 const favourite = ref(false)
 let lastId: string | undefined
 const joined: Ref<boolean | undefined> = ref(undefined)
+const img = ref<HTMLImageElement | null>(null)
+const bgColor = ref<string | undefined>(undefined)
+const color = ref<string | undefined>(undefined)
+
+function getColor() {
+  if (!img.value)
+    return
+  const _color = getMainColor(img.value)
+  bgColor.value = _color
+  let diff = 128 - isDark(_color)
+  const min = 48
+  if (diff > 0 && diff < min)
+    diff = min
+  else if (diff < 0 && diff > -min)
+    diff = -min
+  const shadeColor = getShadeColor(_color, diff < 0 ? diff * 1 : diff * 4)
+  color.value = shadeColor
+}
 
 function init() {
   if (lastId === props.id)
@@ -32,6 +51,14 @@ function init() {
       favourite.value = true
   })
   lastId = props.id
+  if (img.value && img.value.complete) {
+    getColor()
+  }
+  else {
+    img.value!.addEventListener('load', () => {
+      getColor()
+    })
+  }
 }
 
 onMounted(() => {
@@ -64,6 +91,9 @@ function handleJoinClick() {
 <template>
   <div
     min-h-214px w-full flex flex-col justify-center px-8 py-2
+    :style="{
+      backgroundColor: bgColor || '',
+    }"
   >
     <div
       absolute left-0 top-0 z-1 h-70 w-full bg-cover bg-center blur-10
@@ -72,9 +102,14 @@ function handleJoinClick() {
         backgroundImage: props.image ? `url(${props.image})` : undefined,
       }"
     />
-    <div z-5 flex>
+    <div
+      z-5 flex
+      :style="{
+        color: color || '',
+      }"
+    >
       <div h-32 w-32 flex items-center justify-center>
-        <img v-if="props.image" :src="`${props.image}`" rounded-md>
+        <img v-if="props.image" ref="img" :src="`${props.image}`" rounded-md crossorigin="anonymous">
         <span v-else text-5xl leading-32>{{ props.title[0] }}</span>
       </div>
       <div ml-4 h-32 flex flex-col justify-center>
@@ -99,8 +134,13 @@ function handleJoinClick() {
         </div>
       </div>
     </div>
-    <div z-10 mt-4 flex flex-col>
-      <div line-clamp-5 w-full whitespace-pre-wrap text-sm>
+    <div
+      z-10 mt-4 flex flex-col
+      :style="{
+        color: color || '',
+      }"
+    >
+      <div line-clamp-3 w-full whitespace-pre-wrap text-sm>
         {{ props?.about }}
       </div>
     </div>
