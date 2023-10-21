@@ -2,9 +2,7 @@ import { LangEnum } from '@/models/MarkData'
 import type { Media } from '@/models/Media'
 
 function getLang(_msg: string) {
-  const lang: {
-    [key in LangEnum]: boolean;
-  } = {
+  const lang = {
     S: false,
     T: false,
     J: false,
@@ -12,25 +10,25 @@ function getLang(_msg: string) {
   }
   const msg = _msg.toUpperCase()
   const langMap = [
-    { CHS: LangEnum.S },
-    { CHT: LangEnum.T },
-    { JPN: LangEnum.J },
-    { ENG: LangEnum.E },
-    { BIG5: LangEnum.T },
-    { GB: LangEnum.S },
-    { JP: LangEnum.J },
+    { CHS: [LangEnum.S] },
+    { CHT: [LangEnum.T] },
+    { JPN: [LangEnum.J] },
+    { ENG: [LangEnum.E] },
+    { BIG5: [LangEnum.T] },
+    { GB: [LangEnum.S] },
+    { JP: [LangEnum.J] },
     { JPTC: [LangEnum.J, LangEnum.T] },
     { JPSC: [LangEnum.J, LangEnum.S] },
-    { 简: LangEnum.S },
-    { 簡: LangEnum.S },
-    { 繁: LangEnum.T },
-    { 日: LangEnum.J },
-    { 英: LangEnum.E },
+    { 简: [LangEnum.S] },
+    { 簡: [LangEnum.S] },
+    { 繁: [LangEnum.T] },
+    { 日: [LangEnum.J] },
+    { 英: [LangEnum.E] },
   ]
-  for (const lang of langMap) {
-    for (const key in lang) {
+  for (const _lang of langMap) {
+    for (const key in _lang) {
       if (msg.includes(key)) {
-        for (const l of lang[key])
+        for (const l of _lang[key])
           lang[l] = true
       }
     }

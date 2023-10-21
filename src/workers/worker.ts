@@ -30,7 +30,7 @@ interface VideoMsg {
 
 type PostMsg = ImgMsg | VideoMsg
 const requestStates = new Map<string, RequestStates>()
-const TIMEOUT = 7_500
+const TIMEOUT = 10_000
 
 async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
   const range = e.request.headers.get('range')
@@ -79,15 +79,20 @@ async function imageHandler(url: string, e: FetchEvent): Promise<Response> {
 
   if (!data || data.imgData.byteLength === 0) {
     return new Response(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
+      status: 504,
+      statusText: 'Gateway Timeout',
     })
   }
 
   const { imgData } = data
 
   // add to cache
-  await cache.put(url, new Response(imgData))
+  cache.put(url, new Response(imgData, {
+    headers: new Headers({
+      'Content-Type': 'image/png',
+      'Content-Length': imgData.byteLength.toString(),
+    }),
+  }))
 
   return new Response(imgData, {
     headers: new Headers({

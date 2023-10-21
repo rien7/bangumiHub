@@ -98,6 +98,13 @@ async function getMessages() {
           lang: { ...lang },
           quality,
         }, `${channelId.toString()}+${messageId.toString()}`)
+          .then(() => {
+            window.postMessage({
+              type: 'update-marks',
+              channelId: Number(channelId),
+              messageId: Number(messageId),
+            }, location.href)
+          })
       })
     })
 }
@@ -145,6 +152,13 @@ async function searchMessages() {
           lang: { ...lang },
           quality,
         }, `${channelId.toString()}+${messageId.toString()}`)
+          .then(() => {
+            window.postMessage({
+              type: 'update-marks',
+              channelId: Number(channelId),
+              messageId: Number(messageId),
+            }, location.href)
+          })
       })
     })
 }

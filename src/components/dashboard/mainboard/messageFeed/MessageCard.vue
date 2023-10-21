@@ -136,13 +136,23 @@ async function markComplate() {
   messageCardStore.clear()
 }
 
-onMounted(async () => {
+async function getMarkIndex() {
   const _markData = await db.get(StoreNames.MARK_INDEX, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
   if (_markData)
     markData.value = _markData as MarkData
+}
+
+onMounted(async () => {
+  await getMarkIndex()
   const _media = await db.get(StoreNames.MEDIA, props.message.mediaId?.toString() || '') as Media
   media.value = _media
   mounted.value = true
+
+  window.addEventListener('message', async (event) => {
+    // eslint-disable-next-line eqeqeq
+    if (event.data.type === 'update-marks' && event.data.channelId == props.channelId && event.data.messageId == props.message.id)
+      await getMarkIndex()
+  })
 })
 </script>
 

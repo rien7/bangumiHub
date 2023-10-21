@@ -34,6 +34,7 @@ function handleBtnClick(_favourite: boolean) {
 
 <template>
   <Header
+    v-if="activeMark"
     :id="activeMark!.id"
     :title="activeMark!.title"
     :sub-title="activeMark!.subTitle"
