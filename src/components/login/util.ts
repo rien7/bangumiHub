@@ -2,7 +2,8 @@ import QRCodeStyling from 'qr-code-styling'
 import { Api } from 'telegram'
 import { computeCheck } from 'telegram/Password'
 import { RPCError } from 'telegram/errors'
-import { CLIENT, SESSION_STRING } from '@/utils/client'
+import { CLIENT } from '@/utils/client'
+import db, { StoreNames } from '@/utils/db'
 
 enum LoginStatus {
   QR_CODE_WAITING = 'qrCodeWaiting',
@@ -20,8 +21,12 @@ class LoginUtil {
   static SINGLETON: LoginUtil = new LoginUtil()
 
   constructor() {
-    if (SESSION_STRING)
-      this.status = LoginStatus.FINISHED
+    db.get(StoreNames.GENERAL_SETTINGS, 'session')
+      .then((session) => {
+        if (session)
+          this.status = LoginStatus.FINISHED
+        this.onStatusChange(this.status)
+      })
   }
 
   async loginWithQRCode() {

@@ -2,6 +2,7 @@
 import { onMounted, provide, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { Icon } from '@iconify/vue/dist/iconify.js'
+import { useRouter } from 'vue-router'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 import ImageIcon from './ImageIcon.vue'
@@ -10,12 +11,15 @@ import RawBtn from './RawBtn.vue'
 import type Channel from '@/models/Channel'
 import db, { StoreNames } from '@/utils/db'
 import useGlobalStore from '@/store/global'
+import { LoginStatus, LoginUtil } from '@/components/login/util'
 
 const expand = ref(false)
 provide('expand', expand)
 
 const globalStore = useGlobalStore()
 const { darkMode } = storeToRefs(globalStore)
+
+const router = useRouter()
 
 const favouriteChannels = ref<{ id: bigInt.BigInteger; name: string; image: string }[]>([])
 const favouriteMarks = ref<{ id: string; title: string; subTitle?: string; image?: string }[]>([])
@@ -42,6 +46,15 @@ async function updateChannels() {
       image: `/img/c${channel.chatPhotoId}`,
     }
   })
+  if (favouriteChannels.value.length === 0) {
+    globalStore.setPageErrorMsg('Not following channels yet, try searching for some channels like: ', {
+      id: '@AnimeNep',
+      action: () => {
+        globalStore.setCurrentValue('searchChannel')
+        window.postMessage({ type: 'set-searchbar', value: '@AnimeNep' }, location.href)
+      },
+    })
+  }
   if (!globalStore.activeChannel && favouriteChannels.value.length > 0)
     globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }
@@ -56,6 +69,14 @@ async function updateMarks() {
       image: mark.image ? `https://proxy.zrien7.workers.dev/bgm/${mark.image}` : undefined,
     }
   })
+}
+
+async function handleLogout() {
+  db.delete(StoreNames.GENERAL_SETTINGS, 'session')
+    .then(() => {
+      LoginUtil.SINGLETON.status = LoginStatus.QR_CODE_WAITING
+      router.push('/login')
+    })
 }
 </script>
 
@@ -107,14 +128,14 @@ async function updateMarks() {
           <RawBtn h-8 w-8>
             <Icon h-4 w-4 icon="" />
           </RawBtn>
-          <RawBtn h-8 w-8>
-            <Icon h-4 w-4 icon="" />
-          </RawBtn>
           <a href="https://github.com/rien7/taindex">
             <RawBtn h-8 w-8>
               <Icon h-4 w-4 icon="line-md:github-twotone" />
             </RawBtn>
           </a>
+          <RawBtn h-8 w-8 @click="handleLogout">
+            <Icon h-4 w-4 icon="line-md:logout" />
+          </RawBtn>
         </div>
       </template>
     </SidebarBtn>

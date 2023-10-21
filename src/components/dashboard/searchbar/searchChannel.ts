@@ -3,14 +3,19 @@ import { CLIENT } from '@/utils/client'
 import Channel from '@/models/Channel'
 
 async function getChannel(text: string) {
-  const result = await CLIENT.invoke(
-    new Api.channels.GetFullChannel({
-      channel: text,
-    }),
-  )
-  const joined = await getJoined(text)
-  const channel = new Channel(result, joined)
-  return channel
+  try {
+    const result = await CLIENT.invoke(
+      new Api.channels.GetFullChannel({
+        channel: text,
+      }),
+    )
+    const joined = await getJoined(text)
+    const channel = new Channel(result, joined)
+    return channel
+  }
+  catch (error) {
+    return undefined
+  }
 }
 
 async function joinChannel(text: string) {

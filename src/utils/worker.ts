@@ -76,7 +76,7 @@ async function imageHandler(url: string) {
         db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify({
           ...channel,
           about: undefined,
-        }), channel.id.toString())
+        }), channel?.id.toString())
         let { fileReference } = await db.get(StoreNames.MEDIA, imgId)
         fileReference = Buffer.from(fileReference as ArrayBuffer)
         imgData = await download(new Api.InputPhotoFileLocation({

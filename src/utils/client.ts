@@ -9,4 +9,4 @@ const CLIENT = new TelegramClient(SESSION, Number.parseInt(import.meta.env.VITE_
 })
 CLIENT.connect()
 
-export { CLIENT, SESSION_STRING }
+export { CLIENT }

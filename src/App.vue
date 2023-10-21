@@ -2,13 +2,11 @@
 import { useRouter } from 'vue-router'
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { SESSION_STRING } from './utils/client'
 import './utils/worker'
 import useGlobalStore from './store/global'
+import db, { StoreNames } from './utils/db'
 
 const router = useRouter()
-if (!SESSION_STRING)
-  router.push('/login')
 
 const dark = ref()
 
@@ -39,6 +37,11 @@ watch([darkMode], () => {
 
 onMounted(() => {
   getDarkMode()
+  db.get(StoreNames.GENERAL_SETTINGS, 'session')
+    .then((session) => {
+      if (!session)
+        router.push('/login')
+    })
 })
 </script>
 
