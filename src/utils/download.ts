@@ -8,15 +8,15 @@ async function downloadManual(
   offset = returnBigInt(0),
   limit = 1024 * 1024,
 ) {
+  const sender = await CLIENT.getSender(dcId)
   const result = await CLIENT.invokeWithSender(
     new Api.upload.GetFile({
       location,
       offset,
       limit,
-      precise: false,
       cdnSupported: false,
     }),
-    await CLIENT.getSender(dcId),
+    sender,
   )
   return result
 }

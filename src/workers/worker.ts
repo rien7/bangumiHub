@@ -19,29 +19,34 @@ interface RequestStates {
 interface ImgMsg {
   type: 'img-request'
   url: string
+  randomId: string
 }
 
 interface VideoMsg {
   type: 'video-request'
   url: string
+  randomId: string
   start: number
   limit: number
 }
 
 type PostMsg = ImgMsg | VideoMsg
 const requestStates = new Map<string, RequestStates>()
-const TIMEOUT = 10_000
+const TIMEOUT = 5_000
 
 async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
   const range = e.request.headers.get('range')
   const bytes = /^bytes=(\d+)-(\d+)?$/g.exec(range || '')!
   const requsetStart = Number(bytes[1])
 
+  const randomId = Math.random().toString(36).substring(7)
+
   const data = await postMsg(e, {
     type: 'video-request',
     url,
+    randomId,
     start: requsetStart,
-    limit: 1024 * 1024,
+    limit: 128 * 1024,
   })
 
   if (!data || data.videoData.byteLength === 0) {
@@ -72,9 +77,12 @@ async function imageHandler(url: string, e: FetchEvent): Promise<Response> {
   if (cachedResponse)
     return cachedResponse
 
+  const randomId = Math.random().toString(36).substring(7)
+
   const data = await postMsg(e, {
     type: 'img-request',
     url,
+    randomId,
   })
 
   if (!data || data.imgData.byteLength === 0) {
@@ -106,7 +114,7 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
   let isResolved = false
   const promise = Promise.race([
     new Promise((resolve, reject) => {
-      requestStates.set(params.url, { resolve, reject })
+      requestStates.set(params.randomId, { resolve, reject })
     }),
     new Promise<void>((resolve) => {
       setTimeout(() => resolve(), TIMEOUT)
@@ -122,7 +130,7 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
   promise
     .catch(() => {})
     .finally(() => {
-      requestStates.delete(params.url)
+      requestStates.delete(params.randomId)
       isResolved = true
     })
 
@@ -136,7 +144,7 @@ async function postMsg(e: FetchEvent, params: PostMsg): Promise<any> {
 }
 
 sw.addEventListener('message', (event) => {
-  const state = requestStates.get(event.data.url)
+  const state = requestStates.get(event.data.randomId)
   if (state)
     state.resolve(event.data)
 })
