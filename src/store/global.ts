@@ -49,7 +49,6 @@ const useGlobalStore = defineStore('global', () => {
     if (channel)
       currentValue.value = 'searchChannel'
     searchChannel.value = channel
-    activeMark.value = undefined
   }
 
   return {

@@ -5,7 +5,7 @@ import db, { StoreNames } from '@/utils/db'
 import useGlobalStore from '@/store/global'
 
 const globalStore = useGlobalStore()
-const { activeChannel, searchChannel } = storeToRefs(globalStore)
+const { searchChannel, currentValue } = storeToRefs(globalStore)
 
 function handleBtnClick(favourite: boolean) {
   if (!searchChannel.value)
@@ -27,11 +27,12 @@ function handleBtnClick(favourite: boolean) {
 
 <template>
   <Header
-    :id="searchChannel?.id.toString() || activeChannel!.id.toString()"
-    :title="searchChannel?.title || activeChannel!.title"
-    :sub-title="searchChannel?.username || activeChannel!.username"
-    :image="`/img/c${searchChannel?.chatPhotoId || activeChannel!.chatPhotoId}`"
-    :about="searchChannel?.about || activeChannel?.about"
+    v-if="searchChannel && currentValue === 'searchChannel'"
+    :id="searchChannel.id.toString()"
+    :title="searchChannel.title"
+    :sub-title="searchChannel.username"
+    :image="`/img/c${searchChannel.chatPhotoId}`"
+    :about="searchChannel.about"
     type="channel"
     :favourite-action="handleBtnClick"
     :joined="searchChannel?.joined"

@@ -14,7 +14,7 @@ enum SearchType {
 }
 
 const globalStore = useGlobalStore()
-const { activeChannel } = storeToRefs(globalStore)
+const { activeChannel, activeMark } = storeToRefs(globalStore)
 
 const inputField = ref<HTMLInputElement | null>(null)
 const currentSearchType = ref(SearchType.Channels)
@@ -22,12 +22,13 @@ const currentSearchType = ref(SearchType.Channels)
 const route = useRoute()
 const router = useRouter()
 
-watch([activeChannel], () => {
-  if (!activeChannel.value)
-    return
-  inputField.value!.value = ''
-  globalStore.setMessageQuery('')
-  currentSearchType.value = SearchType.Messages
+watch([activeChannel, activeMark], () => {
+  if (activeChannel.value || activeMark.value) {
+    inputField.value!.value = ''
+    globalStore.setMessageQuery('')
+    globalStore.setSearchChannel(undefined)
+    currentSearchType.value = SearchType.Messages
+  }
 })
 
 const searchResult = ref<Channel | null>(null)
@@ -37,7 +38,9 @@ function switchMessageChannel() {
     return
   inputField.value!.value = ''
   globalStore.setMessageQuery('')
+  globalStore.setSearchChannel(undefined)
   currentSearchType.value = currentSearchType.value === SearchType.Messages ? SearchType.Channels : SearchType.Messages
+  globalStore.setCurrentValue(currentSearchType.value === SearchType.Messages ? 'searchMessage' : 'searchChannel')
 }
 
 async function handleInputSubmit(_e: KeyboardEvent) {
@@ -52,6 +55,8 @@ async function handleInputSubmit(_e: KeyboardEvent) {
     if (!activeChannel.value)
       return
     globalStore.setMessageQuery(query)
+    if (query.length === 0)
+      globalStore.setCurrentValue('channel')
   }
 }
 </script>

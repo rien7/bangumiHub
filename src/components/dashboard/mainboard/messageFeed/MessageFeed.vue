@@ -29,9 +29,9 @@ async function onScroll() {
   if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value) {
     if (activeMark.value && currentValue.value === 'mark')
       await getMarkedMessages()
-    else if (messageQuery.value.length === 0 && currentValue.value === 'channel')
+    else if (messageQuery.value.length === 0 && (currentValue.value === 'channel' || currentValue.value === 'searchChannel'))
       await getMessages()
-    else if (currentValue.value === 'searchChannel' || currentValue.value === 'searchMessage')
+    else if (currentValue.value === 'searchMessage')
       await searchMessages()
   }
 }
@@ -42,12 +42,12 @@ async function init() {
     messages.value = []
     await getMarkedMessages()
   }
-  else if (messageQuery.value.length === 0 && currentValue.value === 'channel') {
+  else if (messageQuery.value.length === 0 && (currentValue.value === 'channel' || currentValue.value === 'searchChannel')) {
     lastMessageId = 0
     messages.value = []
     await getMessages()
   }
-  else if (currentValue.value === 'searchChannel' || currentValue.value === 'searchMessage') {
+  else if (currentValue.value === 'searchMessage') {
     lastMessageId = 0
     messages.value = []
     await searchMessages()
@@ -119,6 +119,10 @@ async function searchMessages() {
     lastMessageId,
     activeChannel.value.accessHash,
   )
+  if (newMessages.length === 0) {
+    updating.value = false
+    return
+  }
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
