@@ -9,12 +9,12 @@ import { download, downloadManual } from './download'
 
 navigator.serviceWorker.addEventListener('message', async (event) => {
   if (event.data.type === 'img-request')
-    await imageHandler(event.data.url)
+    imageHandler(event.data.url, event.data.randomId)
   else if (event.data.type === 'video-request')
-    await videoHandler(event.data.url, event.data.start, event.data.limit)
+    videoHandler(event.data.url, event.data.randomId, event.data.start, event.data.limit)
 })
 
-async function videoHandler(url: string, start: number, limit: number) {
+async function videoHandler(url: string, randomId: string, start: number, limit: number) {
   const { pathname } = new URL(url)
   const videoId = pathname.split('/v/')[1]
 
@@ -30,14 +30,14 @@ async function videoHandler(url: string, start: number, limit: number) {
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'video-result',
-    url,
+    randomId,
     videoData: videoData.bytes,
     start: newOffset,
     fullSize: size,
   })
 }
 
-async function imageHandler(url: string) {
+async function imageHandler(url: string, randomId: string) {
   const { pathname } = new URL(url)
   const imgPath = pathname.split('/img/')[1]
   const imgType = imgPath[0]
@@ -92,7 +92,7 @@ async function imageHandler(url: string) {
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'img-result',
-    url,
+    randomId,
     imgData,
   })
 }
