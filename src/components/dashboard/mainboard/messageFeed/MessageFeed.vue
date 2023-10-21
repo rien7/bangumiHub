@@ -27,9 +27,9 @@ watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
 async function onScroll() {
   const { scrollTop, scrollHeight, clientHeight } = messageFeed.value!
   if (scrollTop + clientHeight + 200 >= scrollHeight && !updating.value) {
-    if (activeMark.value && currentValue.value === 'mark')
-      await getMarkedMessages()
-    else if (messageQuery.value.length === 0 && (currentValue.value === 'channel' || currentValue.value === 'searchChannel'))
+    // if (activeMark.value && currentValue.value === 'mark')
+    //   await getMarkedMessages()
+    if (messageQuery.value.length === 0 && (currentValue.value === 'channel' || currentValue.value === 'searchChannel'))
       await getMessages()
     else if (currentValue.value === 'searchMessage')
       await searchMessages()
