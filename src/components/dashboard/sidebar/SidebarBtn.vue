@@ -51,7 +51,7 @@ const sidebarFontColor = computed(() => {
     diff = -min
   if (!sidebarColor.value)
     return ''
-  const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.8 : diff * 4)
+  const shadeColor = getShadeColor(sidebarColor.value, diff < 0 ? diff * 0.6 : diff * 3)
   return shadeColor
 })
 
