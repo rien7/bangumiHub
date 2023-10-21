@@ -14,7 +14,7 @@ import MarkData from '@/models/MarkData'
 import db, { StoreNames } from '@/utils/db'
 import type { Media } from '@/models/Media'
 import { readableDate, readableSeconds } from '@/utils/date'
-import { getImgUrlByName, uploadTiDB } from '@/components/dashboard/mainboard/marks/utils'
+import { getImgUrlByName, uploadCloud } from '@/components/dashboard/mainboard/marks/utils'
 import useGlobalStore from '@/store/global'
 
 const props = defineProps<{
@@ -95,6 +95,7 @@ async function favouriteClick() {
 
   db.put(StoreNames.MARK_INDEX, {
     ...markData.value,
+    channelId: undefined,
     lang: { ...markData.value!.lang },
   }, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
 
@@ -132,7 +133,7 @@ async function markComplate() {
     channelId: props.message.channelId.toString(),
     text: undefined,
   }, `${props.message.channelId.toString()}+${props.message.id.toString()}`)
-  uploadTiDB(props.message.channelId.toJSNumber(), props.message.id, _markData.mark)
+  uploadCloud(props.message.channelId.toJSNumber(), props.message.id, _markData.mark)
   messageCardStore.clear()
 }
 

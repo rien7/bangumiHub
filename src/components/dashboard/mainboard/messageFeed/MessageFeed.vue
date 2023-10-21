@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { getFromTiDB, getMarkedMessageQuery, uploadTiDB } from '../marks/utils'
+import { getFromCloud, getMarkedMessageQuery, uploadCloud } from '../marks/utils'
 import { getFromMark, getLang, getQuality } from '../marks/extractData'
 import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
@@ -68,13 +68,13 @@ async function getMessages() {
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
-  getFromTiDB(
+  getFromCloud(
     Number.parseInt((searchChannel.value?.id || activeChannel.value!.id).toString()),
     Math.min(newMessages[0].id, newMessages[newMessages.length - 1].id),
     Math.max(newMessages[0].id, newMessages[newMessages.length - 1].id),
   )
     .then(res => res.json())
-    .then(json => json.data.rows)
+    .then(json => json.results)
     .then((rows) => {
       rows.forEach(async (row) => {
         const channelId = row.channel_id
@@ -126,13 +126,13 @@ async function searchMessages() {
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id
   updating.value = false
-  getFromTiDB(
+  getFromCloud(
     Number.parseInt((searchChannel.value?.id || activeChannel.value!.id).toString()),
     Math.min(newMessages[0].id, newMessages[newMessages.length - 1].id),
     Math.max(newMessages[0].id, newMessages[newMessages.length - 1].id),
   )
     .then(res => res.json())
-    .then(json => json.data.rows)
+    .then(json => json.results)
     .then((rows) => {
       rows.forEach(async (row) => {
         const channelId = row.channel_id
@@ -220,7 +220,7 @@ async function getMarksFromNet(markId: string) {
       episode,
     }, `${msg.channelId.toString()}+${msg.id.toString()}`)
     if (activeMark.value?.mark)
-      uploadTiDB(msg.channelId.toJSNumber(), msg.id, activeMark.value?.mark)
+      uploadCloud(msg.channelId.toJSNumber(), msg.id, activeMark.value?.mark)
   })
   messages.value = messages.value.concat(newMessages)
   lastMessageId = messages.value[messages.value.length - 1].id

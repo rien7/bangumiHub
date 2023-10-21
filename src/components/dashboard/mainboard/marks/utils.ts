@@ -1,5 +1,4 @@
 import type MarkData from '@/models/MarkData'
-import { strToBase64 } from '@/utils/base64'
 import db, { StoreNames } from '@/utils/db'
 import { t2s } from '@/utils/stConvert'
 
@@ -42,8 +41,8 @@ async function getMarkedMessageQuery(id: string) {
   }
 }
 
-async function uploadTiDB(channel_id: number, message_id: number, mark: string) {
-  const url = 'https://us-west-2.data.tidbcloud.com/api/v1beta/app/dataapp-VlwpndHe/endpoint/insertMark'
+async function uploadCloud(channel_id: number, message_id: number, mark: string) {
+  const url = 'https://db.zrien7.workers.dev/mark/insert'
   const data = {
     channel_id,
     message_id,
@@ -51,21 +50,20 @@ async function uploadTiDB(channel_id: number, message_id: number, mark: string) 
   }
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Basic ${strToBase64(`${import.meta.env.VITE_TIDB_PUBLIC_KEY}:${import.meta.env.VITE_TIDB_PRIVATE_KEY}`)}`,
   }
   fetch(url, {
     method: 'POST',
     body: JSON.stringify(data),
     headers,
+    mode: 'no-cors',
   })
 }
 
-async function getFromTiDB(channel_id: number, start_id: number, end_id: number) {
-  const _url = 'https://us-west-2.data.tidbcloud.com/api/v1beta/app/dataapp-VlwpndHe/endpoint/searchIndex'
+async function getFromCloud(channel_id: number, start_id: number, end_id: number) {
+  const _url = 'https://db.zrien7.workers.dev/mark/get'
   const url = `${_url}?channel_id=${channel_id}&start_id=${start_id}&end_id=${end_id}`
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Basic ${strToBase64(`${import.meta.env.VITE_TIDB_PUBLIC_KEY}:${import.meta.env.VITE_TIDB_PRIVATE_KEY}`)}`,
   }
   return await fetch(url, {
     method: 'GET',
@@ -73,4 +71,4 @@ async function getFromTiDB(channel_id: number, start_id: number, end_id: number)
   })
 }
 
-export { getImgUrlByName, getMarkedMessageQuery, uploadTiDB, getFromTiDB }
+export { getImgUrlByName, getMarkedMessageQuery, uploadCloud, getFromCloud }

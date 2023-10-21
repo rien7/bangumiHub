@@ -64,7 +64,8 @@ function getFromMark(mark: string, text: string) {
       title += ' '
     title += text.substring(Number.parseInt(t[1]), Number.parseInt(t[2]))
   }
-  const episode = episodeRegex ? text.substring(Number.parseInt(episodeRegex[1]), Number.parseInt(episodeRegex[2])) : ''
+  const _episode = episodeRegex ? text.substring(Number.parseInt(episodeRegex[1]), Number.parseInt(episodeRegex[2])) : ''
+  const episode = Number(_episode).toString().padStart(2, '0')
   return {
     subTitle,
     title,
