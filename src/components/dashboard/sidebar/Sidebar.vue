@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { onMounted, provide, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { Icon } from '@iconify/vue/dist/iconify.js'
 import SidebarBtn from './SidebarBtn.vue'
 import SvgIcon from './SvgIcon.vue'
 import ImageIcon from './ImageIcon.vue'
 import SidebarGroup from './SidebarGroup.vue'
+import RawBtn from './RawBtn.vue'
 import type Channel from '@/models/Channel'
 import db, { StoreNames } from '@/utils/db'
 import useGlobalStore from '@/store/global'
@@ -12,6 +15,8 @@ const expand = ref(false)
 provide('expand', expand)
 
 const globalStore = useGlobalStore()
+const { darkMode } = storeToRefs(globalStore)
+
 const favouriteChannels = ref<{ id: bigInt.BigInteger; name: string; image: string }[]>([])
 const favouriteMarks = ref<{ id: string; title: string; subTitle?: string; image?: string }[]>([])
 
@@ -66,29 +71,52 @@ async function updateMarks() {
       <SidebarBtn
         v-for="mark in favouriteMarks"
         :id="mark.id"
-        :key="mark.id" type="mark" :text="`${mark.subTitle ? `${mark.subTitle}-` : ''}${mark.title}`" :image="mark.image" :clickable="true" :expandable="true"
+        :key="mark.id" type="mark" :image="mark.image" :clickable="true" :expandable="true"
       >
         <ImageIcon v-if="mark.image" :src="mark.image" />
         <div v-else h-8 w-8>
           <span leading-8>{{ mark.title[0] }}</span>
         </div>
+        <template #context>
+          {{ `${mark.subTitle ? `${mark.subTitle}-` : ''}${mark.title}` }}
+        </template>
       </SidebarBtn>
     </SidebarGroup>
     <SidebarGroup v-if="favouriteChannels.length > 0" title="Channel" icon="mingcute:horn-line">
       <SidebarBtn
         v-for="channel in favouriteChannels"
         :id="channel.id.toString()"
-        :key="channel.id.toString()" type="channel" :text="channel.name" :clickable="true" :image="channel.image" :expandable="true"
+        :key="channel.id.toString()" type="channel" :clickable="true" :image="channel.image" :expandable="true"
       >
         <ImageIcon :src="channel.image" />
+        <template #context>
+          {{ channel.name }}
+        </template>
       </SidebarBtn>
     </SidebarGroup>
 
     <SidebarBtn
-      text="Menu" :clickable="true" :expandable="true"
-      @click="expand = !expand"
+      :clickable="true" :expandable="true"
     >
-      <SvgIcon icon="line-md:menu" />
+      <SvgIcon icon="line-md:menu" @click="expand = !expand" />
+      <template #context>
+        <div w-full flex justify-between px-2>
+          <RawBtn h-8 w-8 @click="globalStore.switchDarkMode()">
+            <Icon h-4 w-4 :icon="darkMode === 'light' ? 'iconamoon:mode-light-duotone' : darkMode === 'dark' ? 'iconamoon:mode-dark-duotone' : 'ic:round-auto-awesome'" />
+          </RawBtn>
+          <RawBtn h-8 w-8>
+            <Icon h-4 w-4 icon="" />
+          </RawBtn>
+          <RawBtn h-8 w-8>
+            <Icon h-4 w-4 icon="" />
+          </RawBtn>
+          <a href="https://github.com/rien7/taindex">
+            <RawBtn h-8 w-8>
+              <Icon h-4 w-4 icon="line-md:github-twotone" />
+            </RawBtn>
+          </a>
+        </div>
+      </template>
     </SidebarBtn>
   </div>
 </template>

@@ -10,9 +10,12 @@ const props = defineProps<{
 
 <template>
   <SidebarBtn
-    :text="props.title" :clickable="false" :expandable="false"
+    :clickable="false" :expandable="false"
   >
     <SvgIcon :icon="props.icon" />
+    <template #context>
+      {{ props.title }}
+    </template>
   </SidebarBtn>
   <slot />
 </template>

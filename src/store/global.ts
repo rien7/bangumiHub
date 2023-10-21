@@ -11,6 +11,8 @@ const useGlobalStore = defineStore('global', () => {
   const searchChannel = ref<Channel | undefined>(undefined)
   const activeMark = ref<MarkData | undefined>(undefined)
 
+  const darkMode = ref<'dark' | 'light' | 'auto'>('auto')
+
   function setCurrentValue(val: 'channel' | 'searchMessage' | 'searchChannel' | 'mark') {
     currentValue.value = val
   }
@@ -51,6 +53,19 @@ const useGlobalStore = defineStore('global', () => {
     searchChannel.value = channel
   }
 
+  function setDarkMode(mode: 'dark' | 'light' | 'auto') {
+    darkMode.value = mode
+  }
+
+  function switchDarkMode() {
+    if (darkMode.value === 'auto')
+      darkMode.value = 'light'
+    else if (darkMode.value === 'light')
+      darkMode.value = 'dark'
+    else
+      darkMode.value = 'auto'
+  }
+
   return {
     activeChannel,
     messageQuery,
@@ -63,6 +78,9 @@ const useGlobalStore = defineStore('global', () => {
     clearActiveMark,
     currentValue,
     setCurrentValue,
+    darkMode,
+    setDarkMode,
+    switchDarkMode,
   }
 })
 
