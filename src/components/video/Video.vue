@@ -225,7 +225,7 @@ onMounted(async () => {
         top: `${rightPosition.y}px`,
         height: `${rightPosition.h}px`,
         width: `${rightPosition.w}px`,
-        maxHeight: `${messageInMark.length * ((rightPosition.w - 40) / 16 * 9 + 20) + 60}px`,
+        maxHeight: `${messageInMark.length * (Math.min(rightPosition.w - 40, 320) / 16 * 9 + 20) + 60}px`,
       }"
       absolute max-w-360px rounded-md p-5
     >
@@ -233,9 +233,9 @@ onMounted(async () => {
         Episodes
       </div>
       <div
-        flex flex-col gap-5 overflow-y-scroll
+        max-w-320px flex flex-col gap-5 overflow-y-scroll
         :style="{
-          maxHeight: `${messageInMark.length * ((rightPosition.w - 40) / 16 * 9 + 20)}px`,
+          maxHeight: `${messageInMark.length * (Math.min(rightPosition.w - 40, 320) / 16 * 9 + 20)}px`,
           height: `${rightPosition.h - 80}px`,
           width: `${rightPosition.w - 40}px`,
         }"
@@ -244,7 +244,7 @@ onMounted(async () => {
           v-for="msg in messageInMark.sort((a, b) => a.episode - b.episode)" :key="msg.mediaId"
           :style="{
             width: `${rightPosition.w - 40}px`,
-          }" cursor-pointe r relative w-320px
+          }" cursor-pointe r relative max-w-320px
         >
           <img
             :src="`/img/m${msg.mediaId}`" max-w-320px cursor-pointer rounded-md
