@@ -18,7 +18,7 @@ async function videoHandler(url: string, start: number, limit: number) {
   const { pathname } = new URL(url)
   const videoId = pathname.split('/v/')[1]
 
-  const { id, accessHash, fileReference, size } = await db.get(StoreNames.MEDIA, videoId)
+  const { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
 
   const [newOffset, newLimit] = adjustLimitOffset(start, limit)
   const videoData = await downloadManual(new Api.InputDocumentFileLocation({
@@ -26,7 +26,7 @@ async function videoHandler(url: string, start: number, limit: number) {
     accessHash,
     fileReference: Buffer.from(fileReference as ArrayBuffer),
     thumbSize: '',
-  }), returnBigInt(newOffset), newLimit) as Api.upload.File
+  }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'video-result',
