@@ -4,10 +4,11 @@ import { CLIENT } from './client'
 
 async function downloadManual(
   location: Api.TypeInputFileLocation,
+  dcId: number,
   offset = returnBigInt(0),
   limit = 1024 * 1024,
 ) {
-  const result = await CLIENT.invoke(
+  const result = await CLIENT.invokeWithSender(
     new Api.upload.GetFile({
       location,
       offset,
@@ -15,6 +16,7 @@ async function downloadManual(
       precise: false,
       cdnSupported: false,
     }),
+    await CLIENT.getSender(dcId),
   )
   return result
 }
