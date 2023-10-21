@@ -65,6 +65,7 @@ watch([expand, hover], () => {
 
 async function handleBtnClick() {
   if (props.clickable && props.id && props.type) {
+    globalStore.setPageErrorMsg('', undefined)
     if (route.path !== '/')
       router.push('/')
     if (props.type === 'channel') {

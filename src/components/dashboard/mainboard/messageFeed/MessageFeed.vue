@@ -18,7 +18,7 @@ const messageFeed = ref<HTMLElement>()
 const updating = ref(false)
 
 const globalStore = useGlobalStore()
-const { activeChannel, messageQuery, searchChannel, activeMark, currentValue } = storeToRefs(globalStore)
+const { activeChannel, messageQuery, searchChannel, activeMark, currentValue, pageErrorMsg, pageErrorClick } = storeToRefs(globalStore)
 
 watch([activeChannel, messageQuery, searchChannel, activeMark], async () => {
   await init()
@@ -55,7 +55,9 @@ async function init() {
 }
 
 async function getMessages() {
-  if ((!activeChannel.value || !activeChannel.value.accessHash) && (!searchChannel.value || !searchChannel.value.accessHash) || updating.value)
+  if ((currentValue.value === 'channel' && (!activeChannel.value || !activeChannel.value.accessHash))
+    || (currentValue.value === 'searchChannel' && (!searchChannel.value || !searchChannel.value.accessHash))
+    || updating.value)
     return
   updating.value = true
   const newMessages = await getChannelMessages(
@@ -120,6 +122,7 @@ async function searchMessages() {
     activeChannel.value.accessHash,
   )
   if (newMessages.length === 0) {
+    globalStore.setPageErrorMsg('No results founded, try another keyword.')
     updating.value = false
     return
   }
@@ -238,7 +241,14 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div v-if="pageErrorMsg" h-full w-full flex items-center justify-center text-gray>
+    <span>{{ pageErrorMsg }}</span>
+    <span v-if="pageErrorClick" ml-2 cursor-pointer color-blue @click="pageErrorClick?.action">
+      {{ pageErrorClick?.id }}
+    </span>
+  </div>
   <div
+    v-else
     ref="messageFeed" flex flex-wrap gap-6 overflow-y-scroll p-8
     @scroll="onScroll"
   >
@@ -247,4 +257,3 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-./searchMsgTelegram

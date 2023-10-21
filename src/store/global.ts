@@ -12,9 +12,16 @@ const useGlobalStore = defineStore('global', () => {
   const activeMark = ref<MarkData | undefined>(undefined)
 
   const darkMode = ref<'dark' | 'light' | 'auto'>('auto')
+  const pageErrorMsg = ref<string>('')
+  const pageErrorClick = ref<{ id: string; action: () => void } | undefined>()
 
   function setCurrentValue(val: 'channel' | 'searchMessage' | 'searchChannel' | 'mark') {
     currentValue.value = val
+  }
+
+  function setPageErrorMsg(msg: string, errorClick?: { id: string; action: () => void }) {
+    pageErrorMsg.value = msg
+    pageErrorClick.value = errorClick
   }
 
   async function setActiveChannelById(channelId: string) {
@@ -81,6 +88,9 @@ const useGlobalStore = defineStore('global', () => {
     darkMode,
     setDarkMode,
     switchDarkMode,
+    pageErrorMsg,
+    pageErrorClick,
+    setPageErrorMsg,
   }
 })
 

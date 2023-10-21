@@ -42,6 +42,15 @@ async function updateChannels() {
       image: `/img/c${channel.chatPhotoId}`,
     }
   })
+  if (favouriteChannels.value.length === 0) {
+    globalStore.setPageErrorMsg('Not following channels yet, try searching for some channels like: ', {
+      id: '@AnimeNep',
+      action: () => {
+        globalStore.setCurrentValue('searchChannel')
+        window.postMessage({ type: 'set-searchbar', value: '@AnimeNep' }, location.href)
+      },
+    })
+  }
   if (!globalStore.activeChannel && favouriteChannels.value.length > 0)
     globalStore.setActiveChannelById(favouriteChannels.value[0]?.id.toString())
 }

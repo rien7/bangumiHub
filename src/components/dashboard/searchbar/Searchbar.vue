@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue/dist/iconify.js'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
@@ -46,8 +46,22 @@ function switchMessageChannel() {
 async function handleInputSubmit(_e: KeyboardEvent) {
   if (route.path !== '/')
     router.push('/')
+  globalStore.setPageErrorMsg('', undefined)
   if (currentSearchType.value === SearchType.Channels) {
-    searchResult.value = await getChannel(inputField.value!.value)
+    globalStore.setCurrentValue('searchChannel')
+    const result = await getChannel(inputField.value!.value)
+    if (!result) {
+      globalStore.setSearchChannel(undefined)
+      globalStore.setPageErrorMsg(`No channel found with '${inputField.value!.value}', try searching for some channels like: `, {
+        id: '@AnimeNep',
+        action: () => {
+          globalStore.setCurrentValue('searchChannel')
+          window.postMessage({ type: 'set-searchbar', value: '@AnimeNep' }, location.href)
+        },
+      })
+      return
+    }
+    searchResult.value = result
     globalStore.setSearchChannel(searchResult.value)
   }
   else {
@@ -59,6 +73,15 @@ async function handleInputSubmit(_e: KeyboardEvent) {
       globalStore.setCurrentValue('channel')
   }
 }
+
+onMounted(() => {
+  window.addEventListener('message', (e) => {
+    if (e.data.type === 'set-searchbar') {
+      inputField.value!.value = e.data.value
+      inputField.value!.focus()
+    }
+  })
+})
 </script>
 
 <template>
