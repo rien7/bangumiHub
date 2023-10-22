@@ -1,14 +1,12 @@
 import { Buffer } from 'node:buffer'
 import { Api } from 'telegram'
 import { RPCError } from 'telegram/errors'
-import { returnBigInt } from 'telegram/Helpers'
 import { getChannel } from '../components/dashboard/searchbar/searchChannel'
 import type Channel from '../models/Channel'
 import db, { StoreNames } from './db'
-import { download, downloadManual } from './download'
-import { getChannelByMediaId, getMessageByMediaId } from './expired'
-import { getChannelMessagesByMessageId } from '@/components/dashboard/mainboard/messageFeed/getMessages'
-import type { Media } from '@/models/Media'
+import { download } from './download'
+import { getChannelByMediaId } from './expired'
+import DownloadScheduler from './downloadScheduler'
 
 navigator.serviceWorker.addEventListener('message', async (event) => {
   if (event.data.type === 'img-request')
@@ -17,93 +15,28 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
     videoHandler(event.data.url, event.data.randomId, event.data.start, event.data.limit)
 })
 
-async function videoHandler(url: string, randomId: string, start: number, limit: number) {
-  const { pathname } = new URL(url)
-  const videoId = pathname.split('/v/')[1]
+async function videoHandler(url: string, randomId: string, start: number, _limit: number) {
+  const scheduler = DownloadScheduler.SINGLETON
+  scheduler.currentDownloadUrl = url
 
-  let { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
+  const response = await scheduler.videoHandler(start)
 
-  const [newOffset, newLimit] = adjustLimitOffset(start, limit)
-
-  const cache = await caches.open('video')
-  const cacheData = await cache.match(`${videoId}-${newOffset}`)
-  if (cacheData) {
-    navigator.serviceWorker.controller?.postMessage({
-      type: 'video-result',
-      randomId,
-      videoData: await cacheData.arrayBuffer(),
-      start: newOffset,
-      fullSize: size,
-    })
-    return
-  }
-
-  let videoData
-  try {
-    videoData = await downloadManual(new Api.InputDocumentFileLocation({
-      id,
-      accessHash,
-      fileReference: Buffer.from(fileReference as ArrayBuffer),
-      thumbSize: '',
-    }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
-  }
-  catch (error) {
-    if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
-      const _message = await getMessageByMediaId(videoId)
-      if (!_message)
-        return
-      const message = await getChannelMessagesByMessageId(_message.channelId, [new Api.InputMessageID({ id: _message.id })])
-      if (message.length !== 1)
-        return
-      const _media = await db.get(StoreNames.MEDIA, videoId) as Media
-      id = _media.id
-      accessHash = _media.accessHash
-      fileReference = _media.fileReference
-      dcId = _media.dcId
-      videoData = await downloadManual(new Api.InputDocumentFileLocation({
-        id,
-        accessHash,
-        fileReference: Buffer.from(fileReference as ArrayBuffer),
-        thumbSize: '',
-      }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
-    }
-    else { throw error }
-  }
+  const headers = response.headers
+  const range = headers.get('Content-Range')
+  if (!range)
+    throw new Error('Content-Range Empty')
+  const regex = /bytes (\d+)-\d+\/\d+/
+  const result = regex.exec(range)
+  if (result?.length !== 2)
+    throw new Error('Content-Range Error')
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'video-result',
     randomId,
-    videoData: videoData.bytes,
-    start: newOffset,
-    fullSize: size,
+    videoData: await response.arrayBuffer(),
+    start: Number(result[1]),
+    fullSize: scheduler.mediaSize,
   })
-
-  // preload 10 chunks
-  for (let i = 0; i < 10; i++) {
-    const [offset, limit] = adjustLimitOffset(newOffset + newLimit * (i + 1), newLimit)
-    if (offset >= size)
-      break
-    const cacheData = await cache.match(`${videoId}-${offset}`)
-    if (cacheData)
-      continue
-    downloadManual(new Api.InputDocumentFileLocation({
-      id,
-      accessHash,
-      fileReference: Buffer.from(fileReference as ArrayBuffer),
-      thumbSize: '',
-    }), dcId, returnBigInt(offset), limit)
-      .then((_videoData) => {
-        const videoData = _videoData as Api.upload.File
-        cache.put(`${videoId}-${offset}`, new Response(videoData.bytes, {
-          headers: new Headers({
-            'Accept-Ranges': 'bytes',
-            'Content-Type': 'video/mp4',
-            'Content-Length': videoData.bytes.byteLength.toString(),
-            'Content-Range': `bytes ${offset}-${offset + videoData.bytes.byteLength - 1}/${size}`,
-          }),
-        }))
-      })
-  }
 }
 
 async function imageHandler(url: string, randomId: string) {
@@ -180,3 +113,5 @@ function adjustLimitOffset(offset: number, limit: number): [number, number] {
 
   return [offset, limit]
 }
+
+export { adjustLimitOffset }
