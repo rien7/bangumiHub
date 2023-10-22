@@ -7,6 +7,8 @@ class Photo {
   fileReference: Buffer
   tumbSizes: string[]
 
+  channelId?: number
+
   constructor(photo: Api.TypePhoto) {
     if (photo instanceof Api.PhotoEmpty)
       throw new Error('Photo is empty.')

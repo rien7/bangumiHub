@@ -23,6 +23,7 @@ class Channel {
     this.joined = joined
     if (data.fullChat.chatPhoto) {
       const photo = new Photo(data.fullChat.chatPhoto)
+      photo.channelId = this.id.toJSNumber()
       this.chatPhotoId = photo.id
       db.put(StoreNames.MEDIA, {
         ...photo,

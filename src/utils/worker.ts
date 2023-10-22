@@ -6,6 +6,9 @@ import { getChannel } from '../components/dashboard/searchbar/searchChannel'
 import type Channel from '../models/Channel'
 import db, { StoreNames } from './db'
 import { download, downloadManual } from './download'
+import { getChannelByMediaId, getMessageByMediaId } from './expired'
+import { getChannelMessagesByMessageId } from '@/components/dashboard/mainboard/messageFeed/getMessages'
+import type { Media } from '@/models/Media'
 
 navigator.serviceWorker.addEventListener('message', async (event) => {
   if (event.data.type === 'img-request')
@@ -18,7 +21,7 @@ async function videoHandler(url: string, randomId: string, start: number, limit:
   const { pathname } = new URL(url)
   const videoId = pathname.split('/v/')[1]
 
-  const { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
+  let { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
 
   const [newOffset, newLimit] = adjustLimitOffset(start, limit)
 
@@ -35,12 +38,37 @@ async function videoHandler(url: string, randomId: string, start: number, limit:
     return
   }
 
-  const videoData = await downloadManual(new Api.InputDocumentFileLocation({
-    id,
-    accessHash,
-    fileReference: Buffer.from(fileReference as ArrayBuffer),
-    thumbSize: '',
-  }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
+  let videoData
+  try {
+    videoData = await downloadManual(new Api.InputDocumentFileLocation({
+      id,
+      accessHash,
+      fileReference: Buffer.from(fileReference as ArrayBuffer),
+      thumbSize: '',
+    }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
+  }
+  catch (error) {
+    if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
+      const _message = await getMessageByMediaId(videoId)
+      if (!_message)
+        return
+      const message = await getChannelMessagesByMessageId(_message.channelId, [new Api.InputMessageID({ id: _message.id })])
+      if (message.length !== 1)
+        return
+      const _media = await db.get(StoreNames.MEDIA, videoId) as Media
+      id = _media.id
+      accessHash = _media.accessHash
+      fileReference = _media.fileReference
+      dcId = _media.dcId
+      videoData = await downloadManual(new Api.InputDocumentFileLocation({
+        id,
+        accessHash,
+        fileReference: Buffer.from(fileReference as ArrayBuffer),
+        thumbSize: '',
+      }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
+    }
+    else { throw error }
+  }
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'video-result',
@@ -106,24 +134,17 @@ async function imageHandler(url: string, randomId: string) {
     }
     catch (error) {
       if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
-        const _channel = (await db.getAll(StoreNames.FAVOURITE_CHANNELS))
-          .map(channel => JSON.parse(channel) as Channel)
-          .filter((channel) => {
-            return channel.chatPhotoId?.toString() === imgId
-          })
-        if (_channel.length !== 1)
+        const _channel = await getChannelByMediaId(imgId) as Channel
+        if (!_channel)
           return
-        const channel = await getChannel(_channel[0].username || _channel[0].id.toString())
-        db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify({
-          ...channel,
-          about: undefined,
-        }), channel?.id.toString())
-        let { fileReference } = await db.get(StoreNames.MEDIA, imgId)
-        fileReference = Buffer.from(fileReference as ArrayBuffer)
+        const channel = await getChannel(_channel.username || _channel.id.toString())
+        if (!channel)
+          return
+        const { fileReference } = await db.get(StoreNames.MEDIA, imgId)
         imgData = await download(new Api.InputPhotoFileLocation({
           id,
           accessHash,
-          fileReference,
+          fileReference: Buffer.from(fileReference as ArrayBuffer),
           thumbSize: 'a',
         }), dcId)
       }
