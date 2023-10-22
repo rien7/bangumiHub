@@ -1,11 +1,12 @@
 import { Buffer } from 'node:buffer'
 import { Api } from 'telegram'
 import { RPCError } from 'telegram/errors'
-import { returnBigInt } from 'telegram/Helpers'
 import { getChannel } from '../components/dashboard/searchbar/searchChannel'
 import type Channel from '../models/Channel'
 import db, { StoreNames } from './db'
-import { download, downloadManual } from './download'
+import { download } from './download'
+import { getChannelByMediaId } from './expired'
+import DownloadScheduler from './downloadScheduler'
 
 navigator.serviceWorker.addEventListener('message', async (event) => {
   if (event.data.type === 'img-request')
@@ -14,26 +15,27 @@ navigator.serviceWorker.addEventListener('message', async (event) => {
     videoHandler(event.data.url, event.data.randomId, event.data.start, event.data.limit)
 })
 
-async function videoHandler(url: string, randomId: string, start: number, limit: number) {
-  const { pathname } = new URL(url)
-  const videoId = pathname.split('/v/')[1]
+async function videoHandler(url: string, randomId: string, start: number, _limit: number) {
+  const scheduler = DownloadScheduler.SINGLETON
+  scheduler.currentDownloadUrl = url
 
-  const { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
+  const response = await scheduler.videoHandler(start)
 
-  const [newOffset, newLimit] = adjustLimitOffset(start, limit)
-  const videoData = await downloadManual(new Api.InputDocumentFileLocation({
-    id,
-    accessHash,
-    fileReference: Buffer.from(fileReference as ArrayBuffer),
-    thumbSize: '',
-  }), dcId, returnBigInt(newOffset), newLimit) as Api.upload.File
+  const headers = response.headers
+  const range = headers.get('Content-Range')
+  if (!range)
+    throw new Error('Content-Range Empty')
+  const regex = /bytes (\d+)-\d+\/\d+/
+  const result = regex.exec(range)
+  if (result?.length !== 2)
+    throw new Error('Content-Range Error')
 
   navigator.serviceWorker.controller?.postMessage({
     type: 'video-result',
     randomId,
-    videoData: videoData.bytes,
-    start: newOffset,
-    fullSize: size,
+    videoData: await response.arrayBuffer(),
+    start: Number(result[1]),
+    fullSize: scheduler.mediaSize,
   })
 }
 
@@ -65,24 +67,17 @@ async function imageHandler(url: string, randomId: string) {
     }
     catch (error) {
       if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
-        const _channel = (await db.getAll(StoreNames.FAVOURITE_CHANNELS))
-          .map(channel => JSON.parse(channel) as Channel)
-          .filter((channel) => {
-            return channel.chatPhotoId?.toString() === imgId
-          })
-        if (_channel.length !== 1)
+        const _channel = await getChannelByMediaId(imgId) as Channel
+        if (!_channel)
           return
-        const channel = await getChannel(_channel[0].username || _channel[0].id.toString())
-        db.put(StoreNames.FAVOURITE_CHANNELS, JSON.stringify({
-          ...channel,
-          about: undefined,
-        }), channel?.id.toString())
-        let { fileReference } = await db.get(StoreNames.MEDIA, imgId)
-        fileReference = Buffer.from(fileReference as ArrayBuffer)
+        const channel = await getChannel(_channel.username || _channel.id.toString())
+        if (!channel)
+          return
+        const { fileReference } = await db.get(StoreNames.MEDIA, imgId)
         imgData = await download(new Api.InputPhotoFileLocation({
           id,
           accessHash,
-          fileReference,
+          fileReference: Buffer.from(fileReference as ArrayBuffer),
           thumbSize: 'a',
         }), dcId)
       }
@@ -118,3 +113,5 @@ function adjustLimitOffset(offset: number, limit: number): [number, number] {
 
   return [offset, limit]
 }
+
+export { adjustLimitOffset }

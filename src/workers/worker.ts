@@ -32,7 +32,7 @@ interface VideoMsg {
 
 type PostMsg = ImgMsg | VideoMsg
 const requestStates = new Map<string, RequestStates>()
-const TIMEOUT = 5_000
+const TIMEOUT = 50_000
 
 async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
   const range = e.request.headers.get('range')
@@ -46,7 +46,7 @@ async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
     url,
     randomId,
     start: requsetStart,
-    limit: 128 * 1024,
+    limit: 512 * 1024,
   })
 
   if (!data || data.videoData.byteLength === 0) {

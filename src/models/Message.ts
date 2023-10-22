@@ -13,8 +13,11 @@ class Message {
     this.id = data.id
     this.date = data.date
     this.message = data.message
+    this.channelId = (data.peerId as Api.PeerChannel).channelId
     if (data.media instanceof Api.MessageMediaDocument) {
       const media = new Media(data.media)
+      media.channelId = this.channelId.toJSNumber()
+      media.messageId = this.id
       db.put(StoreNames.MEDIA, {
         ...media,
         id: media.id.toString(),
@@ -23,8 +26,6 @@ class Message {
       }, media.id.toString())
       this.mediaId = media.id
     }
-
-    this.channelId = (data.peerId as Api.PeerChannel).channelId
     db.put(StoreNames.TA_INDEX, {
       ...this,
       mediaId: this.mediaId?.toString(),

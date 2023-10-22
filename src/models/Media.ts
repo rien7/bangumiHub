@@ -12,6 +12,9 @@ class Media {
   mimeType: string
   dcId: number
 
+  channelId?: number
+  messageId?: number
+
   constructor(media: Api.MessageMediaDocument) {
     const document = media.document as Api.Document
     this.id = document.id
