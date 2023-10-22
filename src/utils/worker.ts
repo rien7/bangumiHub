@@ -21,6 +21,20 @@ async function videoHandler(url: string, randomId: string, start: number, limit:
   const { id, accessHash, fileReference, size, dcId } = await db.get(StoreNames.MEDIA, videoId)
 
   const [newOffset, newLimit] = adjustLimitOffset(start, limit)
+
+  const cache = await caches.open('video')
+  const cacheData = await cache.match(`${videoId}-${newOffset}`)
+  if (cacheData) {
+    navigator.serviceWorker.controller?.postMessage({
+      type: 'video-result',
+      randomId,
+      videoData: await cacheData.arrayBuffer(),
+      start: newOffset,
+      fullSize: size,
+    })
+    return
+  }
+
   const videoData = await downloadManual(new Api.InputDocumentFileLocation({
     id,
     accessHash,
@@ -35,6 +49,33 @@ async function videoHandler(url: string, randomId: string, start: number, limit:
     start: newOffset,
     fullSize: size,
   })
+
+  // preload 10 chunks
+  for (let i = 0; i < 10; i++) {
+    const [offset, limit] = adjustLimitOffset(newOffset + newLimit * (i + 1), newLimit)
+    if (offset >= size)
+      break
+    const cacheData = await cache.match(`${videoId}-${offset}`)
+    if (cacheData)
+      continue
+    downloadManual(new Api.InputDocumentFileLocation({
+      id,
+      accessHash,
+      fileReference: Buffer.from(fileReference as ArrayBuffer),
+      thumbSize: '',
+    }), dcId, returnBigInt(offset), limit)
+      .then((_videoData) => {
+        const videoData = _videoData as Api.upload.File
+        cache.put(`${videoId}-${offset}`, new Response(videoData.bytes, {
+          headers: new Headers({
+            'Accept-Ranges': 'bytes',
+            'Content-Type': 'video/mp4',
+            'Content-Length': videoData.bytes.byteLength.toString(),
+            'Content-Range': `bytes ${offset}-${offset + videoData.bytes.byteLength - 1}/${size}`,
+          }),
+        }))
+      })
+  }
 }
 
 async function imageHandler(url: string, randomId: string) {

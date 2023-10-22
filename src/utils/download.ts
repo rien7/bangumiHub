@@ -14,6 +14,7 @@ async function downloadManual(
       location,
       offset,
       limit,
+      precise: false,
       cdnSupported: false,
     }),
     sender,
