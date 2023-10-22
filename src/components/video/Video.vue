@@ -165,7 +165,6 @@ async function init() {
 }
 
 onMounted(async () => {
-  caches.delete('video')
   await init()
   globalStore.clearActiveMark()
   const _player = new Plyr(video.value!, {

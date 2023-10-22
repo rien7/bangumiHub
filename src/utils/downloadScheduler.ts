@@ -4,13 +4,13 @@ import { returnBigInt } from 'telegram/Helpers'
 import { RPCError } from 'telegram/errors'
 import db, { StoreNames } from './db'
 import { downloadManual } from './download'
-import { adjustLimitOffset } from './worker'
 import { getMessageByMediaId } from './expired'
 import type { Media } from '@/models/Media'
 import { getChannelMessagesByMessageId } from '@/components/dashboard/mainboard/messageFeed/getMessages'
 
 class DownloadScheduler {
   static SINGLETON: DownloadScheduler = new DownloadScheduler()
+  preloadSize = 5 * 1024 * 1024
   private chunkSize = 128 * 1024
 
   private _currentDownloadUrl: string | undefined = undefined
@@ -22,6 +22,7 @@ class DownloadScheduler {
   mediaSize: number = 0
 
   private _downloadingPromise: Map<number, Promise<Api.upload.File>> = new Map()
+  // 1: downloading, 2: downloaded
   private _downloadStatus: Map<number, number> = new Map()
   private waitingPromise: Promise<undefined> | undefined = undefined
 
@@ -60,77 +61,49 @@ class DownloadScheduler {
     const [start, limit] = adjustLimitOffset(_start, this.chunkSize)
     const downloadStatu = this._downloadStatus.get(start)
     let data: Response
-    // console.debug(`[Handler] ${start}`)
+    // Downloaded
     if (downloadStatu === 2) {
       const _data = await cache.match(`${this._currentDownloadUrl}-${start}`)
       if (!_data)
         throw new Error('Cache not exist!')
       data = _data
-      // console.debug(`[Hit cache] ${start}`)
     }
+    // Downloading
     else if (downloadStatu === 1) {
       const promise = this._downloadingPromise.get(start)
       if (!promise)
         throw new Error('Promise not exist!')
-      // console.debug(`[Waiting download] ${start}`)
       const _data = await promise
-      data = new Response(_data.bytes, {
-        headers: new Headers({
-          'Accept-Ranges': 'bytes',
-          'Content-Type': 'application/octet-stream',
-          'Content-Length': _data.bytes.byteLength.toString(),
-          'Content-Range': `bytes ${start}-${start + _data.bytes.byteLength - 1}/${this.mediaSize}`,
-        }),
-      })
-      // console.debug(`[Waiting finish] ${start}`)
+      data = this.generateResponse(_data, start)
     }
+    // No download
     else {
       this._downloadStatus.set(start, 1)
       const promise = this.downloadVideo(start, limit)
       this._downloadingPromise.set(start, promise)
       const _data = await promise
         .then((_data) => {
-          cache.put(`${this._currentDownloadUrl}-${start}`, new Response(_data.bytes, {
-            headers: new Headers({
-              'Accept-Ranges': 'bytes',
-              'Content-Type': 'application/octet-stream',
-              'Content-Length': _data.bytes.byteLength.toString(),
-              'Content-Range': `bytes ${start}-${start + _data.bytes.byteLength - 1}/${this.mediaSize}`,
-            }),
-          }))
+          cache.put(`${this._currentDownloadUrl}-${start}`, this.generateResponse(_data, start))
           this._downloadStatus.set(start, 2)
           this._downloadingPromise.delete(start)
           return _data
         })
-      data = new Response(_data.bytes, {
-        headers: new Headers({
-          'Accept-Ranges': 'bytes',
-          'Content-Type': 'application/octet-stream',
-          'Content-Length': _data.bytes.byteLength.toString(),
-          'Content-Range': `bytes ${start}-${start + _data.bytes.byteLength - 1}/${this.mediaSize}`,
-        }),
-      })
+      data = this.generateResponse(_data, start)
     }
 
-    for (let i = 0, _s = start + this.chunkSize; i < 40; i++, _s += this.chunkSize) {
+    // Preload
+    const number = this.preloadSize / this.chunkSize
+    for (let i = 0, _s = start + this.chunkSize; i < number; i++, _s += this.chunkSize) {
       if (_s > this.mediaSize)
         break
       const downloadStatu = this._downloadStatus.get(_s)
       if (downloadStatu === 1 || downloadStatu === 2)
         continue
       const [s, l] = adjustLimitOffset(_s, this.chunkSize)
-      // console.debug(`[Caching] ${start} + ${i}`)
       this._downloadStatus.set(s, 1)
       const promise = this.downloadVideo(s, l)
         .then((_data) => {
-          cache.put(`${this._currentDownloadUrl}-${s}`, new Response(_data.bytes, {
-            headers: new Headers({
-              'Accept-Ranges': 'bytes',
-              'Content-Type': 'application/octet-stream',
-              'Content-Length': _data.bytes.byteLength.toString(),
-              'Content-Range': `bytes ${s}-${s + _data.bytes.byteLength - 1}/${this.mediaSize}`,
-            }),
-          }))
+          cache.put(`${this._currentDownloadUrl}-${s}`, this.generateResponse(_data, start))
           this._downloadStatus.set(s, 2)
           this._downloadingPromise.delete(s)
           return _data
@@ -149,9 +122,16 @@ class DownloadScheduler {
       data = await this.downloadWithoutCatch(offset, limit)
     }
     catch (error) {
-      if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
-        await this.handleFileExpired()
-        data = await this.downloadWithoutCatch(offset, limit)
+      if (error instanceof RPCError) {
+        switch (error.errorMessage) {
+          case 'FILE_REFERENCE_EXPIRED': {
+            await this.handleFileExpired()
+            data = await this.downloadWithoutCatch(offset, limit)
+            break
+          }
+          default:
+            throw error
+        }
       }
       else {
         throw error
@@ -179,6 +159,39 @@ class DownloadScheduler {
     const _media = await db.get(StoreNames.MEDIA, this._mediaId!) as Media
     this._fileReference = _media.fileReference
   }
+
+  private generateResponse(data: Api.upload.File, start: number) {
+    return new Response(data.bytes, {
+      headers: new Headers({
+        'Accept-Ranges': 'bytes',
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': data.bytes.byteLength.toString(),
+        'Content-Range': `bytes ${start}-${start + data.bytes.byteLength - 1}/${this.mediaSize}`,
+      }),
+    })
+  }
 }
 
 export default DownloadScheduler
+
+// https://core.telegram.org/api/files#uploading-files
+function adjustLimitOffset(offset: number, limit: number): [number, number] {
+  // Ensure limit and offset are divisible by 4 KB (4 * 1024 bytes)
+  limit = Math.floor(limit / (4 * 1024)) * (4 * 1024)
+  offset = Math.floor(offset / (4 * 1024)) * (4 * 1024)
+
+  // Ensure 1 MB (1048576 bytes) is divisible by limit
+  if (1048576 % limit !== 0)
+    limit = 1048576 / (1048576 / limit)
+
+  // Ensure offset / (1024 * 1024) == (offset + limit - 1) / (1024 * 1024)
+  while (Math.floor(offset / (1024 * 1024)) !== Math.floor((offset + limit - 1) / (1024 * 1024))) {
+    if (offset <= 0) {
+      offset = 0
+      break
+    }
+    offset -= 4 * 1024
+  }
+
+  return [offset, limit]
+}

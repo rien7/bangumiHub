@@ -7,15 +7,16 @@ import db, { StoreNames } from './db'
 import { download } from './download'
 import { getChannelByMediaId } from './expired'
 import DownloadScheduler from './downloadScheduler'
+import type { Media } from '@/models/Media'
 
 navigator.serviceWorker.addEventListener('message', async (event) => {
   if (event.data.type === 'img-request')
     imageHandler(event.data.url, event.data.randomId)
   else if (event.data.type === 'video-request')
-    videoHandler(event.data.url, event.data.randomId, event.data.start, event.data.limit)
+    videoHandler(event.data.url, event.data.randomId, event.data.start)
 })
 
-async function videoHandler(url: string, randomId: string, start: number, _limit: number) {
+async function videoHandler(url: string, randomId: string, start: number) {
   const scheduler = DownloadScheduler.SINGLETON
   scheduler.currentDownloadUrl = url
 
@@ -45,25 +46,24 @@ async function imageHandler(url: string, randomId: string) {
   const imgType = imgPath[0]
   const imgId = imgPath.slice(1)
 
-  const { id, accessHash, fileReference, dcId } = await db.get(StoreNames.MEDIA, imgId)
+  let { id, accessHash, fileReference, dcId } = await db.get(StoreNames.MEDIA, imgId)
 
-  let imgData
-  if (imgType === 'm') {
-    imgData = await download(new Api.InputDocumentFileLocation({
+  async function downloadWithoutCatch(thumbSize: string) {
+    await download(new Api.InputDocumentFileLocation({
       id,
       accessHash,
       fileReference: Buffer.from(fileReference as ArrayBuffer),
-      thumbSize: 'v',
+      thumbSize,
     }), dcId)
+  }
+
+  let imgData
+  if (imgType === 'm') {
+    imgData = await downloadWithoutCatch('v')
   }
   else {
     try {
-      imgData = await download(new Api.InputPhotoFileLocation({
-        id,
-        accessHash,
-        fileReference: Buffer.from(fileReference as ArrayBuffer),
-        thumbSize: 'a',
-      }), dcId)
+      imgData = await downloadWithoutCatch('a')
     }
     catch (error) {
       if (error instanceof RPCError && error.errorMessage === 'FILE_REFERENCE_EXPIRED') {
@@ -73,13 +73,9 @@ async function imageHandler(url: string, randomId: string) {
         const channel = await getChannel(_channel.username || _channel.id.toString())
         if (!channel)
           return
-        const { fileReference } = await db.get(StoreNames.MEDIA, imgId)
-        imgData = await download(new Api.InputPhotoFileLocation({
-          id,
-          accessHash,
-          fileReference: Buffer.from(fileReference as ArrayBuffer),
-          thumbSize: 'a',
-        }), dcId)
+        const media = await db.get(StoreNames.MEDIA, imgId) as Media
+        fileReference = media.fileReference
+        imgData = await downloadWithoutCatch('a')
       }
       else { throw error }
     }
@@ -91,27 +87,3 @@ async function imageHandler(url: string, randomId: string) {
     imgData,
   })
 }
-
-// https://core.telegram.org/api/files#uploading-files
-function adjustLimitOffset(offset: number, limit: number): [number, number] {
-  // Ensure limit and offset are divisible by 4 KB (4 * 1024 bytes)
-  limit = Math.floor(limit / (4 * 1024)) * (4 * 1024)
-  offset = Math.floor(offset / (4 * 1024)) * (4 * 1024)
-
-  // Ensure 1 MB (1048576 bytes) is divisible by limit
-  if (1048576 % limit !== 0)
-    limit = 1048576 / (1048576 / limit)
-
-  // Ensure offset / (1024 * 1024) == (offset + limit - 1) / (1024 * 1024)
-  while (Math.floor(offset / (1024 * 1024)) !== Math.floor((offset + limit - 1) / (1024 * 1024))) {
-    if (offset <= 0) {
-      offset = 0
-      break
-    }
-    offset -= 4 * 1024
-  }
-
-  return [offset, limit]
-}
-
-export { adjustLimitOffset }
