@@ -125,12 +125,14 @@ async function handleLogout() {
           <RawBtn h-8 w-8 @click="globalStore.switchDarkMode()">
             <Icon h-4 w-4 :icon="darkMode === 'light' ? 'iconamoon:mode-light-duotone' : darkMode === 'dark' ? 'iconamoon:mode-dark-duotone' : 'ic:round-auto-awesome'" />
           </RawBtn>
-          <RawBtn h-8 w-8>
-            <Icon h-4 w-4 icon="" />
-          </RawBtn>
-          <a href="https://github.com/rien7/taindex">
+          <a href="https://github.com/rien7/bangumiHub">
             <RawBtn h-8 w-8>
               <Icon h-4 w-4 icon="line-md:github-twotone" />
+            </RawBtn>
+          </a>
+          <a href="https://t.me/BangumiHub">
+            <RawBtn h-8 w-8>
+              <Icon h-4 w-4 icon="fa6-brands:telegram" />
             </RawBtn>
           </a>
           <RawBtn h-8 w-8 @click="handleLogout">

@@ -4,7 +4,7 @@ import { t2s } from '@/utils/stConvert'
 
 async function getImgUrlByName(name: string) {
   const sName = t2s(name)
-  const url = `https://proxy.zrien7.workers.dev/search/subject/${sName}?type=2`
+  const url = `https://proxy.bangumi.mov/search/subject/${sName}?type=2`
   const encodedUrl = encodeURI(url)
   let id: string | undefined
   try {
@@ -42,7 +42,7 @@ async function getMarkedMessageQuery(id: string) {
 }
 
 async function uploadCloud(channel_id: number, message_id: number, mark: string) {
-  const url = 'https://db.zrien7.workers.dev/mark/insert'
+  const url = 'https://db.bangumi.mov/mark/insert'
   const data = {
     channel_id,
     message_id,
@@ -60,7 +60,7 @@ async function uploadCloud(channel_id: number, message_id: number, mark: string)
 }
 
 async function getFromCloud(channel_id: number, start_id: number, end_id: number) {
-  const _url = 'https://db.zrien7.workers.dev/mark/get'
+  const _url = 'https://db.bangumi.mov/mark/get'
   const url = `${_url}?channel_id=${channel_id}&start_id=${start_id}&end_id=${end_id}`
   const headers = {
     'Content-Type': 'application/json',
