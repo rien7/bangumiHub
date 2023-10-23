@@ -119,6 +119,7 @@ async function searchMessages() {
   const newMessages = await searchMsgTelegram(
     activeChannel.value.id,
     messageQuery.value,
+    20,
     lastMessageId,
     activeChannel.value.accessHash,
   )
@@ -204,7 +205,8 @@ async function getMarksFromNet(markId: string) {
   const _newMessages = await searchMsgTelegram(
     channelId,
     query,
-    lastMessageId,
+    99999,
+    0,
     _channel?.accessHash,
   )
   const newMessages = _newMessages.filter(msg => messages.value.filter(m => m.id === msg.id).length === 0)
@@ -217,7 +219,7 @@ async function getMarksFromNet(markId: string) {
     lang: { ...activeMark.value.lang },
   }
   const episodeMark = activeMark.value.mark.match(/e(\d+),(\d+)/)!
-  const ids = newMessages.map(msg => msg.id.toString()).join(',')
+  const ids = _newMessages.map(msg => msg.id.toString()).join(',')
   newMessages.forEach((msg) => {
     const episode = msg.message.substring(Number(episodeMark[1]), Number(episodeMark[2]))
     db.put(StoreNames.MARK_INDEX, {
