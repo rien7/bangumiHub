@@ -49,6 +49,7 @@ class DownloadScheduler {
           this._dcId = dcId
           this.mediaSize = Number(size.toString())
           this._downloadStatus.clear()
+          this._downloadingPromise.clear()
           resolve(undefined)
         })
     })
@@ -103,7 +104,7 @@ class DownloadScheduler {
       this._downloadStatus.set(s, 1)
       const promise = this.downloadVideo(s, l)
         .then((_data) => {
-          cache.put(`${this._currentDownloadUrl}-${s}`, this.generateResponse(_data, start))
+          cache.put(`${this._currentDownloadUrl}-${s}`, this.generateResponse(_data, s))
           this._downloadStatus.set(s, 2)
           this._downloadingPromise.delete(s)
           return _data

@@ -49,7 +49,7 @@ async function imageHandler(url: string, randomId: string) {
   let { id, accessHash, fileReference, dcId } = await db.get(StoreNames.MEDIA, imgId)
 
   async function downloadWithoutCatch(thumbSize: string) {
-    await download(new Api.InputDocumentFileLocation({
+    return await download(new Api.InputDocumentFileLocation({
       id,
       accessHash,
       fileReference: Buffer.from(fileReference as ArrayBuffer),
