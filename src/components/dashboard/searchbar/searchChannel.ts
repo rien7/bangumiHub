@@ -1,6 +1,7 @@
 import { Api } from 'telegram'
 import { CLIENT } from '@/utils/client'
 import Channel from '@/models/Channel'
+import db, { StoreNames } from '@/utils/db'
 
 async function getChannel(text: string) {
   try {
@@ -16,6 +17,14 @@ async function getChannel(text: string) {
   catch (error) {
     return undefined
   }
+}
+
+async function getChannelById(id: string) {
+  const _channel = await db.get(StoreNames.FAVOURITE_CHANNELS, id)
+  if (_channel)
+    return _channel as Channel
+  const channel = await getChannel(id)
+  return channel
 }
 
 async function joinChannel(text: string) {
@@ -51,4 +60,4 @@ async function getJoined(text: string) {
   return joined
 }
 
-export { getChannel, joinChannel, leaveChannel }
+export { getChannel, getChannelById, joinChannel, leaveChannel }

@@ -27,7 +27,6 @@ interface VideoMsg {
   url: string
   randomId: string
   start: number
-  limit: number
 }
 
 type PostMsg = ImgMsg | VideoMsg
@@ -46,7 +45,6 @@ async function videoHandler(url: string, e: FetchEvent): Promise<Response> {
     url,
     randomId,
     start: requsetStart,
-    limit: 512 * 1024,
   })
 
   if (!data || data.videoData.byteLength === 0) {

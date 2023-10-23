@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { getFromCloud, getMarkedMessageQuery, uploadCloud } from '../marks/utils'
 import { getFromMark, getLang, getQuality } from '../marks/extractData'
+import { getChannelById } from '../../searchbar/searchChannel'
 import searchMsgTelegram from './searchMsgTelegram'
 import { getChannelMessages } from './getMessages'
 import MessageCard from './MessageCard.vue'
@@ -199,10 +200,12 @@ async function getMarksFromNet(markId: string) {
   if (!queryData)
     return
   const { channelId, query } = queryData
+  const _channel = await getChannelById(channelId.toString())
   const _newMessages = await searchMsgTelegram(
     channelId,
     query,
     lastMessageId,
+    _channel?.accessHash,
   )
   const newMessages = _newMessages.filter(msg => messages.value.filter(m => m.id === msg.id).length === 0)
   if (newMessages.length === 0)

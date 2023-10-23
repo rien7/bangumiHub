@@ -2,6 +2,9 @@
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted, ref, watch } from 'vue'
 import Plyr from 'plyr'
+import { Api } from 'telegram'
+import { returnBigInt } from 'telegram/Helpers'
+import { getChannelMessagesByMessageId } from '../dashboard/mainboard/messageFeed/getMessages'
 import { decode, encode } from '@/utils/number'
 import type Message from '@/models/Message'
 import db, { StoreNames } from '@/utils/db'
@@ -129,10 +132,15 @@ const controls = `
 
 async function init() {
   const _message = await db.get(StoreNames.TA_INDEX, `${channelId.value}+${messageId.value}`)
-  message.value = _message as Message
+  if (_message) {
+    message.value = _message as Message
+  }
+  else {
+    const _msg = await getChannelMessagesByMessageId(returnBigInt(channelId.value), [new Api.InputMessageID({ id: messageId.value })])
+    message.value = _msg[0] as Message
+  }
   const _media = await db.get(StoreNames.MEDIA, message.value.mediaId?.toString() || '')
   media.value = _media as Media
-
   db.get(StoreNames.MARK_INDEX, `${channelId.value}+${messageId.value}`).then((_mark) => {
     mark.value = _mark as MarkData
     if (!mark.value || !mark.value.ids)
@@ -165,7 +173,6 @@ async function init() {
 }
 
 onMounted(async () => {
-  caches.delete('video')
   await init()
   globalStore.clearActiveMark()
   const _player = new Plyr(video.value!, {

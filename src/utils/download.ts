@@ -26,13 +26,13 @@ async function download(
   location: Api.TypeInputFileLocation,
   dcId: number,
 ) {
-  const retult = await CLIENT.downloadFile(
+  const result = await CLIENT.downloadFile(
     location,
     {
       dcId,
     },
   )
-  return retult
+  return result
 }
 
 export { download, downloadManual }
