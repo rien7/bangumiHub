@@ -4,15 +4,18 @@ import { t2s } from '@/utils/stConvert'
 
 async function getImgUrlByName(name: string) {
   const sName = t2s(name)
-  const url = `https://proxy.bangumi.mov/search/subject/${sName}?type=2`
+  const url = 'https://proxy.bangumi.mov/search/subject/'
   const encodedUrl = encodeURI(url)
   let id: string | undefined
   try {
-    await fetch(encodedUrl)
+    await fetch(encodedUrl, {
+      method: 'POST',
+      body: sName,
+    })
       .then(response => response.json())
       .then((data) => {
-        if (data.results !== 0)
-          id = data.list[0].id
+        if (data.total !== 0)
+          id = data.data[0].id
       })
   }
   catch (error) {
